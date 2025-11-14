@@ -16,7 +16,7 @@ FROM alpine:3.21
 WORKDIR /app
 
 COPY --from=builder /app/sensor-stream-server ./sensor-stream-server
-COPY internal/views ./views
+COPY internal/views ./internal/views
 
 EXPOSE 8080
 
