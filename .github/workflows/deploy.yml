@@ -47,4 +47,3 @@ jobs:
           service: sensor-stream-server
           region: ${{ secrets.GCP_REGION }}
           image: ${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/sensor-repo/sensor-stream-server:${{ github.sha }}
-          allow-unauthenticated: true
