@@ -1,51 +1,61 @@
-name: Build & Deploy to Cloud Run (prod)
+name: Deploy to Cloud Run
 
 on:
   pull_request:
   push:
     branches:
-      - main
+      - main  # змінити на твою основну гілку
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
-
     permissions:
-      contents: read
-      id-token: write
+      id-token: write          # потрібне для Workload Identity Federation
+      contents: read           # потрібне для checkout
+
+    env:
+      GAR_LOCATION: us-central1
+      GCP_PROJECT_ID: opportune-scope-320904
+      GCP_REGION: us-central1
+      GCP_SERVICE: sensor-stream-server
+      WIF_PROVIDER: projects/312859651267/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+      WIF_SERVICE_ACCOUNT: github-actions@opportune-scope-320904.iam.gserviceaccount.com
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      # 1️⃣ Checkout репозиторію
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Authenticate to Google Cloud
-        id: auth
+      # 2️⃣ Authenticate to GCP через Workload Identity Federation
+      - name: Authenticate to GCP
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
           token_format: access_token
-          service_account: ${{ secrets.GCP_SA_EMAIL }}
+          workload_identity_provider: ${{ env.WIF_PROVIDER }}
+          service_account: ${{ env.WIF_SERVICE_ACCOUNT }}
 
-      - name: Login to Google Artifact Registry
-        uses: docker/login-action@v2
+      # 3️⃣ Встановити gcloud CLI
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
         with:
-          registry: ${{ secrets.GAR_LOCATION }}-docker.pkg.dev
-          username: oauth2accesstoken
-          password: ${{ steps.auth.outputs.access_token }}
+          project_id: ${{ env.GCP_PROJECT_ID }}
+          region: ${{ env.GCP_REGION }}
 
-      - name: Build & Push Docker Image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./build/Dockerfile
-          push: true
-          tags: |
-            ${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/sensor-repo/sensor-stream-server:latest
-            ${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/sensor-repo/sensor-stream-server:${{ github.sha }}
+      # 4️⃣ Build Docker образ
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/sensor-stream-repo/${{ env.GCP_SERVICE }}:latest .
 
-      - name: Deploy to Cloud Run (prod)
-        uses: google-github-actions/deploy-cloudrun@v2
-        with:
-          service: sensor-stream-server
-          region: ${{ secrets.GCP_REGION }}
-          image: ${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/sensor-repo/sensor-stream-server:${{ github.sha }}
+      # 5️⃣ Push Docker образ у Artifact Registry
+      - name: Push Docker image to Artifact Registry
+        run: |
+          docker push ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/sensor-stream-repo/${{ env.GCP_SERVICE }}:latest
+
+      # 6️⃣ Deploy на Cloud Run
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.GCP_SERVICE }} \
+            --image ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/sensor-stream-repo/${{ env.GCP_SERVICE }}:latest \
+            --region ${{ env.GCP_REGION }} \
+            --platform managed \
+            --allow-unauthenticated
