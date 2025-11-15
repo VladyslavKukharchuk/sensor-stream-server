@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -16,12 +17,18 @@ func AddMeasurements(c *fiber.Ctx) error {
 	var m MeasurementRequest
 
 	if err := c.BodyParser(&m); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "invalid JSON",
-		})
+		writeErr := c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid request"})
+		if writeErr != nil {
+			return fmt.Errorf("failed to write error response: %w", writeErr)
+		}
+
+		return nil
 	}
 
-	return c.JSON(fiber.Map{
-		"message": "measurement received",
-	})
+	writeOK := c.JSON(fiber.Map{"status": "ok"})
+	if writeOK != nil {
+		return fmt.Errorf("failed to write success response: %w", writeOK)
+	}
+
+	return nil
 }
