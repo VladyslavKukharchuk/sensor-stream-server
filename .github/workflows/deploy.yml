@@ -4,14 +4,14 @@ on:
   pull_request:
   push:
     branches:
-      - main  # змінити на твою основну гілку
+      - main
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
-      id-token: write          # потрібне для Workload Identity Federation
-      contents: read           # потрібне для checkout
+      id-token: write
+      contents: read
 
     env:
       GAR_LOCATION: us-central1
@@ -22,11 +22,9 @@ jobs:
       WIF_SERVICE_ACCOUNT: github-actions@opportune-scope-320904.iam.gserviceaccount.com
 
     steps:
-      # 1️⃣ Checkout репозиторію
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2️⃣ Authenticate to GCP через Workload Identity Federation
       - name: Authenticate to GCP
         uses: google-github-actions/auth@v2
         with:
@@ -34,24 +32,20 @@ jobs:
           workload_identity_provider: ${{ env.WIF_PROVIDER }}
           service_account: ${{ env.WIF_SERVICE_ACCOUNT }}
 
-      # 3️⃣ Встановити gcloud CLI
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: ${{ env.GCP_PROJECT_ID }}
           region: ${{ env.GCP_REGION }}
 
-      # 4️⃣ Build Docker образ
       - name: Build Docker image
         run: |
           docker build -t ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/sensor-stream-repo/${{ env.GCP_SERVICE }}:latest .
 
-      # 5️⃣ Push Docker образ у Artifact Registry
       - name: Push Docker image to Artifact Registry
         run: |
           docker push ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/sensor-stream-repo/${{ env.GCP_SERVICE }}:latest
 
-      # 6️⃣ Deploy на Cloud Run
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy ${{ env.GCP_SERVICE }} \
