@@ -24,9 +24,11 @@ func NewAdminController(ms MeasurementService) *AdminController {
 }
 
 func (c *AdminController) IndexPage(f *fiber.Ctx) error {
-	return f.Render("index", fiber.Map{
-		"Title": "Головна",
-	})
+	return f.Render("index",
+		fiber.Map{
+			"Title":   "Головна",
+			"Content": "index",
+		})
 }
 
 func (c *AdminController) MeasurementsPage(f *fiber.Ctx) error {
@@ -39,12 +41,14 @@ func (c *AdminController) MeasurementsPage(f *fiber.Ctx) error {
 		return f.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		//return f.Render("error", fiber.Map{
 		//	"Title": "Failed to load measurements",
+		//  "Content":      "error",
 		//	"Error": err.Error(),
 		//})
 	}
 
 	return f.Render("measurement", fiber.Map{
 		"Title":        "Виміри",
+		"Content":      "measurement",
 		"Measurements": measurements,
 	})
 }
