@@ -44,16 +44,16 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -f build/Dockerfile -t ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/sensor-stream-repo/${{ env.GCP_SERVICE }}:latest .
+          docker build -f build/Dockerfile -t ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/sensor-repo/${{ env.GCP_SERVICE }}:latest .
 
       - name: Push Docker image to Artifact Registry
         run: |
-          docker push ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/sensor-stream-repo/${{ env.GCP_SERVICE }}:latest
+          docker push ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/sensor-repo/${{ env.GCP_SERVICE }}:latest
 
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy ${{ env.GCP_SERVICE }} \
-            --image ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/sensor-stream-repo/${{ env.GCP_SERVICE }}:latest \
+            --image ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/sensor-repo/${{ env.GCP_SERVICE }}:latest \
             --region ${{ env.GCP_REGION }} \
             --platform managed \
             --allow-unauthenticated
