@@ -27,12 +27,6 @@ func main() {
 	app.Use(logger.New())
 	app.Use(cors.New())
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.Render("index", fiber.Map{
-			"Title": "Sensor Dashboard",
-		})
-	})
-
 	firestoreProjectID := os.Getenv("FIRESTORE_PROJECT_ID")
 	if firestoreProjectID == "" {
 		log.Fatal().Msg("FIRESTORE_PROJECT_ID is not set")
@@ -53,8 +47,10 @@ func main() {
 	measurementRepo := repository.NewMeasurementRepository(firestoreClient)
 	measurementService := service.NewMeasurementService(measurementRepo)
 	measurementController := controller.NewMeasurementController(measurementService)
+	adminController := controller.NewAdminController(measurementService)
 
 	routes.RegisterMeasurementRoutes(app, measurementController)
+	routes.RegisterAdminRoutes(app, adminController)
 
 	if err := app.Listen(":8080"); err != nil {
 		log.Fatal().Err(err).Msg("Failed to start server")

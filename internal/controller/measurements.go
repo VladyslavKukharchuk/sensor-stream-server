@@ -37,7 +37,9 @@ func (m MeasurementRequest) toMeasurementModel() *model.Measurement {
 }
 
 func (c *MeasurementController) Add(f *fiber.Ctx) error {
-	var ctx = context.Background()
+	var (
+		ctx = context.Background()
+	)
 
 	var m MeasurementRequest
 
