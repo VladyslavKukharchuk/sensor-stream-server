@@ -22,6 +22,8 @@ jobs:
       WIF_PROVIDER: ${{ vars.WIF_PROVIDER }}
       WIF_SERVICE_ACCOUNT: ${{ vars.WIF_SERVICE_ACCOUNT }}
       CLOUD_RUN_SERVICE_ACCOUNT: ${{ vars.CLOUD_RUN_SERVICE_ACCOUNT }}
+      FIRESTORE_PROJECT_ID: ${{ vars.FIRESTORE_PROJECT_ID }}
+      FIRESTORE_DATABASE_ID: ${{ vars.FIRESTORE_DATABASE_ID }}
 
     steps:
       - name: Checkout code
@@ -60,4 +62,4 @@ jobs:
             --platform managed \
             --allow-unauthenticated \
             --service-account ${{ env.CLOUD_RUN_SERVICE_ACCOUNT }} \
-            --set-env-vars FIRESTORE_PROJECT_ID=${{ env.GCP_PROJECT_ID }}
+            --set-env-vars FIRESTORE_PROJECT_ID=${{ env.FIRESTORE_PROJECT_ID }},FIRESTORE_DATABASE_ID=${{ env.FIRESTORE_DATABASE_ID }}

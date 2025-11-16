@@ -38,9 +38,17 @@ func main() {
 		log.Fatal().Msg("FIRESTORE_PROJECT_ID is not set")
 	}
 
+	firestoreDatabaseID := os.Getenv("FIRESTORE_DATABASE_ID")
+	if firestoreProjectID == "" {
+		log.Fatal().Msg("FIRESTORE_DATABASE_ID is not set")
+	}
+
 	ctx := context.Background()
 
-	firestoreClient, _ := db.NewFirestore(ctx, firestoreProjectID)
+	firestoreClient, err := db.NewFirestore(ctx, firestoreProjectID, firestoreDatabaseID)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to create firestore client")
+	}
 	measurementRepo := repository.NewMeasurementRepository(firestoreClient)
 	measurementService := service.NewMeasurementService(measurementRepo)
 	measurementController := controller.NewMeasurementController(measurementService)
