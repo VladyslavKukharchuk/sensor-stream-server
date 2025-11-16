@@ -8,6 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/template/html/v2"
+	"github.com/joho/godotenv"
 	"github.com/rs/zerolog/log"
 
 	"sensor-stream-server/internal/controller"
@@ -19,6 +20,7 @@ import (
 
 func main() {
 	engine := html.New("./internal/views", ".html")
+	engine.Layout("layout")
 
 	app := fiber.New(fiber.Config{
 		Views: engine,
@@ -27,6 +29,7 @@ func main() {
 	app.Use(logger.New())
 	app.Use(cors.New())
 
+	_ = godotenv.Load()
 	firestoreProjectID := os.Getenv("FIRESTORE_PROJECT_ID")
 	if firestoreProjectID == "" {
 		log.Fatal().Msg("FIRESTORE_PROJECT_ID is not set")

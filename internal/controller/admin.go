@@ -14,7 +14,7 @@ type MeasurementService interface {
 }
 
 type AdminController struct {
-	ms MeasurementService // тільки для сторінок з вимірами
+	ms MeasurementService
 }
 
 func NewAdminController(ms MeasurementService) *AdminController {
@@ -36,7 +36,11 @@ func (c *AdminController) MeasurementsPage(f *fiber.Ctx) error {
 
 	measurements, err := c.ms.List(ctx)
 	if err != nil {
-		return f.Status(fiber.StatusInternalServerError).SendString("Failed to load measurements")
+		return f.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		//return f.Render("error", fiber.Map{
+		//	"Title": "Failed to load measurements",
+		//	"Error": err.Error(),
+		//})
 	}
 
 	return f.Render("measurement", fiber.Map{
