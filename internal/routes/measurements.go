@@ -6,8 +6,8 @@ import (
 	"sensor-stream-server/internal/controller"
 )
 
-func RegisterSensorRoutes(app *fiber.App) {
+func RegisterMeasurementRoutes(app *fiber.App, measurementController *controller.MeasurementController) {
 	api := app.Group("/api/v1")
 
-	api.Post("/measurements", controller.AddMeasurements)
+	api.Post("/measurements", measurementController.Add)
 }
