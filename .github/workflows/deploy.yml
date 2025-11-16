@@ -38,6 +38,10 @@ jobs:
           project_id: ${{ env.GCP_PROJECT_ID }}
           region: ${{ env.GCP_REGION }}
 
+      - name: Configure Docker authentication
+        run: |
+          gcloud auth configure-docker ${{ env.GAR_LOCATION }}-docker.pkg.dev --quiet
+
       - name: Build Docker image
         run: |
           docker build -f build/Dockerfile -t ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/sensor-stream-repo/${{ env.GCP_SERVICE }}:latest .
