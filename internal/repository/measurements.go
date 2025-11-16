@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"cloud.google.com/go/firestore"
@@ -34,5 +35,5 @@ func NewMeasurementRepository(client *firestore.Client) *MeasurementRepository {
 func (r *MeasurementRepository) Add(ctx context.Context, m *model.Measurement) error {
 	_, _, err := r.client.Collection("measurements").Add(ctx, fromMeasurementModel(m))
 
-	return err
+	return fmt.Errorf("failed to add measurement in firestore: %w", err)
 }
