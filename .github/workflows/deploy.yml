@@ -59,4 +59,5 @@ jobs:
             --region ${{ env.GCP_REGION }} \
             --platform managed \
             --allow-unauthenticated \
-            --service-account ${{ env.CLOUD_RUN_SERVICE_ACCOUNT }}
+            --service-account ${{ env.CLOUD_RUN_SERVICE_ACCOUNT }} \
+            --set-env-vars DATABASE_URL=${{ secrets.DATABASE_URL }}
