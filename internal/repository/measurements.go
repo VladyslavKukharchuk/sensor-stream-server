@@ -14,6 +14,7 @@ type Measurement struct {
 	Temperature float64   `firestore:"temperature"`
 	Humidity    float64   `firestore:"humidity"`
 	Timestamp   time.Time `firestore:"timestamp"`
+	CreatedAt   time.Time `firestore:"created_at"`
 }
 
 func fromMeasurementModel(m *model.Measurement) *Measurement {
@@ -21,6 +22,7 @@ func fromMeasurementModel(m *model.Measurement) *Measurement {
 		Temperature: m.Temperature,
 		Humidity:    m.Humidity,
 		Timestamp:   m.Timestamp,
+		CreatedAt:   m.CreatedAt,
 	}
 }
 

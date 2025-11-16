@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"sensor-stream-server/internal/model"
 )
@@ -20,6 +21,7 @@ func NewMeasurementService(repository Repository) *MeasurementService {
 }
 
 func (s *MeasurementService) Add(ctx context.Context, m *model.Measurement) error {
+	m.CreatedAt = time.Now().UTC()
 	if err := s.repository.Add(ctx, m); err != nil {
 		return fmt.Errorf("adding measurement: %w", err)
 	}
