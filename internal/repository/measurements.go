@@ -4,32 +4,35 @@ import (
 	"context"
 	"time"
 
-	"github.com/jackc/pgx/v5/pgxpool"
+	"cloud.google.com/go/firestore"
 
 	"sensor-stream-server/internal/model"
 )
 
 type Measurement struct {
-	ID          int
-	Temperature float64
-	Humidity    float64
-	Timestamp   time.Time
+	Temperature float64   `firestore:"temperature"`
+	Humidity    float64   `firestore:"humidity"`
+	Timestamp   time.Time `firestore:"timestamp"`
+}
+
+func fromMeasurementModel(m *model.Measurement) *Measurement {
+	return &Measurement{
+		Temperature: m.Temperature,
+		Humidity:    m.Humidity,
+		Timestamp:   m.Timestamp,
+	}
 }
 
 type MeasurementRepository struct {
-	db *pgxpool.Pool
+	client *firestore.Client
 }
 
-func NewMeasurementRepository(db *pgxpool.Pool) *MeasurementRepository {
-	return &MeasurementRepository{db: db}
+func NewMeasurementRepository(client *firestore.Client) *MeasurementRepository {
+	return &MeasurementRepository{client: client}
 }
 
-func (r *MeasurementRepository) Add(ctx context.Context, m model.Measurement) error {
-	_, err := r.db.Exec(
-		ctx,
-		"INSERT INTO measurements (temperature, humidity, timestamp) VALUES ($1, $2, $3)",
-		m.Temperature, m.Humidity, m.Timestamp,
-	)
+func (r *MeasurementRepository) Add(ctx context.Context, m *model.Measurement) error {
+	_, _, err := r.client.Collection("measurements").Add(ctx, fromMeasurementModel(m))
 
 	return err
 }

@@ -8,10 +8,10 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/template/html/v2"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rs/zerolog/log"
 
 	"sensor-stream-server/internal/controller"
+	"sensor-stream-server/internal/db"
 	"sensor-stream-server/internal/repository"
 	"sensor-stream-server/internal/routes"
 	"sensor-stream-server/internal/service"
@@ -33,19 +33,15 @@ func main() {
 		})
 	})
 
-	dbURL := os.Getenv("DATABASE_URL")
-	if dbURL == "" {
-		log.Fatal().Msg("DATABASE_URL is not set")
+	firestoreProjectID := os.Getenv("FIRESTORE_PROJECT_ID")
+	if firestoreProjectID == "" {
+		log.Fatal().Msg("FIRESTORE_PROJECT_ID is not set")
 	}
 
 	ctx := context.Background()
-	dbPool, err := pgxpool.New(ctx, dbURL)
-	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to connect to DB")
-	}
-	defer dbPool.Close()
 
-	measurementRepo := repository.NewMeasurementRepository(dbPool)
+	firestoreClient, _ := db.NewFirestore(ctx, firestoreProjectID)
+	measurementRepo := repository.NewMeasurementRepository(firestoreClient)
 	measurementService := service.NewMeasurementService(measurementRepo)
 	measurementController := controller.NewMeasurementController(measurementService)
 

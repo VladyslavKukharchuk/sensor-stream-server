@@ -11,7 +11,7 @@ import (
 )
 
 type Service interface {
-	Add(ctx context.Context, m model.Measurement) error
+	Add(ctx context.Context, m *model.Measurement) error
 }
 
 type MeasurementController struct {
@@ -28,8 +28,8 @@ type MeasurementRequest struct {
 	Timestamp   time.Time `json:"timestamp"`
 }
 
-func (m MeasurementRequest) toMeasurementModel() model.Measurement {
-	return model.Measurement{
+func (m MeasurementRequest) toMeasurementModel() *model.Measurement {
+	return &model.Measurement{
 		Temperature: m.Temperature,
 		Humidity:    m.Humidity,
 		Timestamp:   m.Timestamp,
