@@ -13,16 +13,6 @@ jobs:
       id-token: write
       contents: read
 
-    env:
-      GAR_LOCATION: us-central1
-      GCP_PROJECT_ID: opportune-scope-320904
-      GCP_REGION: us-central1
-      GCP_SERVICE: sensor-stream-server
-      GAR_REPO: sensor-repo
-      WIF_PROVIDER: projects/312859651267/locations/global/workloadIdentityPools/github-pool/providers/github-provider
-      WIF_SERVICE_ACCOUNT: github-actions@opportune-scope-320904.iam.gserviceaccount.com
-      CLOUD_RUN_SERVICE_ACCOUNT: cloud-run-sa@opportune-scope-320904.iam.gserviceaccount.com
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -31,31 +21,31 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           token_format: access_token
-          workload_identity_provider: ${{ env.WIF_PROVIDER }}
-          service_account: ${{ env.WIF_SERVICE_ACCOUNT }}
+          workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+          service_account: ${{ vars.WIF_SERVICE_ACCOUNT }}
 
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v2
         with:
-          project_id: ${{ env.GCP_PROJECT_ID }}
+          project_id: ${{ vars.GCP_PROJECT_ID }}
 
       - name: Configure Docker authentication
         run: |
-          gcloud auth configure-docker ${{ env.GAR_LOCATION }}-docker.pkg.dev --quiet
+          gcloud auth configure-docker ${{ vars.GAR_LOCATION }}-docker.pkg.dev --quiet
 
       - name: Build Docker image
         run: |
-          docker build -f build/Dockerfile -t ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPO }}/${{ env.GCP_SERVICE }}:latest .
+          docker build -f build/Dockerfile -t ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.GAR_REPO }}/${{ vars.GCP_SERVICE }}:latest .
 
       - name: Push Docker image to Artifact Registry
         run: |
-          docker push ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPO }}/${{ env.GCP_SERVICE }}:latest
+          docker push ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.GAR_REPO }}/${{ vars.GCP_SERVICE }}:latest
 
       - name: Deploy to Cloud Run
         run: |
-          gcloud run deploy ${{ env.GCP_SERVICE }} \
-            --image ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPO }}/${{ env.GCP_SERVICE }}:latest \
-            --region ${{ env.GCP_REGION }} \
+          gcloud run deploy ${{ vars.GCP_SERVICE }} \
+            --image ${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.GAR_REPO }}/${{ vars.GCP_SERVICE }}:latest \
+            --region ${{ vars.GCP_REGION }} \
             --platform managed \
             --allow-unauthenticated \
-            --service-account ${{ env.CLOUD_RUN_SERVICE_ACCOUNT }}
+            --service-account ${{ vars.CLOUD_RUN_SERVICE_ACCOUNT }}
