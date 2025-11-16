@@ -40,7 +40,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/sensor-stream-repo/${{ env.GCP_SERVICE }}:latest .
+          docker build -f build/Dockerfile -t ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/sensor-stream-repo/${{ env.GCP_SERVICE }}:latest .
 
       - name: Push Docker image to Artifact Registry
         run: |
