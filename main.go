@@ -52,9 +52,12 @@ func main() {
 	measurementRepo := repository.NewMeasurementRepository(firestoreClient)
 	measurementService := service.NewMeasurementService(measurementRepo)
 	measurementController := controller.NewMeasurementController(measurementService)
+	devicesRepo := repository.NewDevicesRepository(firestoreClient)
+	devicesService := service.NewDevicesService(devicesRepo)
+	devicesController := controller.NewDevicesController(devicesService)
 	adminController := controller.NewAdminController(measurementService)
 
-	routes.RegisterMeasurementRoutes(app, measurementController)
+	routes.RegisterMeasurementRoutes(app, measurementController, devicesController)
 	routes.RegisterAdminRoutes(app, adminController)
 
 	if err := app.Listen(":8080"); err != nil {

@@ -23,6 +23,7 @@ func NewMeasurementController(service Service) *MeasurementController {
 }
 
 type MeasurementRequest struct {
+	DeviceID    string    `json:"device_id"`
 	Temperature float64   `json:"temperature"`
 	Humidity    float64   `json:"humidity"`
 	Timestamp   time.Time `json:"timestamp"`
@@ -30,6 +31,7 @@ type MeasurementRequest struct {
 
 func (m MeasurementRequest) toMeasurementModel() *model.Measurement {
 	return &model.Measurement{
+		DeviceID:    m.DeviceID,
 		Temperature: m.Temperature,
 		Humidity:    m.Humidity,
 		Timestamp:   m.Timestamp,

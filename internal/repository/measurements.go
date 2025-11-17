@@ -12,7 +12,10 @@ import (
 	"sensor-stream-server/internal/model"
 )
 
+const measurementsCollection = "measurements"
+
 type measurement struct {
+	DeviceID    string    `firestore:"device_id"`
 	Temperature float64   `firestore:"temperature"`
 	Humidity    float64   `firestore:"humidity"`
 	Timestamp   time.Time `firestore:"timestamp"`
@@ -21,6 +24,7 @@ type measurement struct {
 
 func (m *measurement) toMeasurementModel() *model.Measurement {
 	return &model.Measurement{
+		DeviceID:    m.DeviceID,
 		Temperature: m.Temperature,
 		Humidity:    m.Humidity,
 		Timestamp:   m.Timestamp,
@@ -30,6 +34,7 @@ func (m *measurement) toMeasurementModel() *model.Measurement {
 
 func fromMeasurementModel(m *model.Measurement) *measurement {
 	return &measurement{
+		DeviceID:    m.DeviceID,
 		Temperature: m.Temperature,
 		Humidity:    m.Humidity,
 		Timestamp:   m.Timestamp,
@@ -46,7 +51,7 @@ func NewMeasurementRepository(client *firestore.Client) *MeasurementRepository {
 }
 
 func (r *MeasurementRepository) Add(ctx context.Context, m *model.Measurement) error {
-	_, _, err := r.client.Collection("measurements").Add(ctx, fromMeasurementModel(m))
+	_, _, err := r.client.Collection(measurementsCollection).Add(ctx, fromMeasurementModel(m))
 	if err != nil {
 		return fmt.Errorf("failed to add measurement in firestore: %w", err)
 	}
@@ -55,7 +60,7 @@ func (r *MeasurementRepository) Add(ctx context.Context, m *model.Measurement) e
 }
 
 func (r *MeasurementRepository) List(ctx context.Context) ([]*model.Measurement, error) {
-	iter := r.client.Collection("measurements").OrderBy("created_at", firestore.Desc).Documents(ctx)
+	iter := r.client.Collection(measurementsCollection).OrderBy("created_at", firestore.Desc).Documents(ctx)
 	defer iter.Stop()
 
 	var measurements []*model.Measurement

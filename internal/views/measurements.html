@@ -13,20 +13,22 @@
 {{template "header"}}
 
 <main>
-    <h2>Дані датчиків</h2>
+    <h2>Sensors stream</h2>
 
     <table>
         <thead>
         <tr>
-            <th>Час</th>
-            <th>Температура</th>
-            <th>Вологість</th>
+            <th>DeviceID</th>
+            <th>Date</th>
+            <th>Temperature</th>
+            <th>Humidity</th>
         </tr>
         </thead>
 
         <tbody>
         {{range .Measurements}}
         <tr>
+            <td>{{.DeviceID}}</td>
             <td>{{.Timestamp.Format "2006-01-02 15:04:05"}}</td>
             <td>{{.Temperature}} °C</td>
             <td>{{.Humidity}} %</td>
