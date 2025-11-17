@@ -31,6 +31,7 @@ func main() {
 	app.Use(cors.New())
 
 	_ = godotenv.Load()
+
 	firestoreProjectID := os.Getenv("FIRESTORE_PROJECT_ID")
 	if firestoreProjectID == "" {
 		log.Fatal().Msg("FIRESTORE_PROJECT_ID is not set")
