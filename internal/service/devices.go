@@ -31,6 +31,7 @@ func (s *DevicesService) Add(ctx context.Context, mac string) (*model.Device, er
 		MAC:       mac,
 		CreatedAt: time.Now().UTC(),
 	}
+
 	newDevice, err := s.repository.Add(ctx, device)
 	if err != nil {
 		return nil, fmt.Errorf("adding device: %w", err)

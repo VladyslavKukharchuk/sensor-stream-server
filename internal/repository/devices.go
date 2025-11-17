@@ -46,6 +46,7 @@ func (r *DevicesRepository) GetByMAC(ctx context.Context, mac string) (*model.De
 		if errors.Is(err, iterator.Done) {
 			return nil, nil
 		}
+
 		return nil, fmt.Errorf("GetByMAC firestore query: %w", err)
 	}
 
