@@ -13,6 +13,7 @@ import (
 )
 
 type measurement struct {
+	DeviceID    string    `firestore:"device_id"`
 	Temperature float64   `firestore:"temperature"`
 	Humidity    float64   `firestore:"humidity"`
 	Timestamp   time.Time `firestore:"timestamp"`
@@ -21,6 +22,7 @@ type measurement struct {
 
 func (m *measurement) toMeasurementModel() *model.Measurement {
 	return &model.Measurement{
+		DeviceID:    m.DeviceID,
 		Temperature: m.Temperature,
 		Humidity:    m.Humidity,
 		Timestamp:   m.Timestamp,
@@ -30,6 +32,7 @@ func (m *measurement) toMeasurementModel() *model.Measurement {
 
 func fromMeasurementModel(m *model.Measurement) *measurement {
 	return &measurement{
+		DeviceID:    m.DeviceID,
 		Temperature: m.Temperature,
 		Humidity:    m.Humidity,
 		Timestamp:   m.Timestamp,
