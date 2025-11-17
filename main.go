@@ -20,7 +20,6 @@ import (
 
 func main() {
 	engine := html.New("./internal/views", ".html")
-	engine.Layout("layout")
 
 	app := fiber.New(fiber.Config{
 		Views: engine,

@@ -1,4 +1,4 @@
-{{define "layout"}}
+{{define "measurements"}}
 <!DOCTYPE html>
 <html lang="uk">
 <head>
@@ -13,10 +13,11 @@
         th { background-color: #f2f2f2; }
     </style>
 </head>
+
 <body>
+
 <header>
     <h1>Sensor Dashboard</h1>
-
     <nav>
         <a href="/admin">Головна</a> |
         <a href="/admin/measurements">Виміри</a>
@@ -24,7 +25,27 @@
 </header>
 
 <main>
-    {{block "content" .}}{{end}}
+    <h2>Дані датчиків</h2>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Час</th>
+            <th>Температура</th>
+            <th>Вологість</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {{range .Measurements}}
+        <tr>
+            <td>{{.Timestamp.Format "2006-01-02 15:04:05"}}</td>
+            <td>{{.Temperature}} °C</td>
+            <td>{{.Humidity}} %</td>
+        </tr>
+        {{end}}
+        </tbody>
+    </table>
 </main>
 
 <footer>
