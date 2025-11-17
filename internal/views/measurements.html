@@ -1,0 +1,43 @@
+{{define "measurements"}}
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>{{.Title}}</title>
+
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+
+{{template "header"}}
+
+<main>
+    <h2>Дані датчиків</h2>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Час</th>
+            <th>Температура</th>
+            <th>Вологість</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {{range .Measurements}}
+        <tr>
+            <td>{{.Timestamp.Format "2006-01-02 15:04:05"}}</td>
+            <td>{{.Temperature}} °C</td>
+            <td>{{.Humidity}} %</td>
+        </tr>
+        {{end}}
+        </tbody>
+    </table>
+</main>
+
+{{template "footer"}}
+
+</body>
+</html>
+{{end}}

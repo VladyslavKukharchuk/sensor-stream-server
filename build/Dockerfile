@@ -17,6 +17,7 @@ WORKDIR /app
 
 COPY --from=builder /app/sensor-stream-server ./sensor-stream-server
 COPY internal/views ./internal/views
+COPY public ./public
 
 EXPOSE 8080
 

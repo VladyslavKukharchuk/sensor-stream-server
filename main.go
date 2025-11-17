@@ -8,6 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/template/html/v2"
+	"github.com/joho/godotenv"
 	"github.com/rs/zerolog/log"
 
 	"sensor-stream-server/internal/controller"
@@ -24,14 +25,12 @@ func main() {
 		Views: engine,
 	})
 
+	app.Static("/", "./public")
+
 	app.Use(logger.New())
 	app.Use(cors.New())
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.Render("index", fiber.Map{
-			"Title": "Sensor Dashboard",
-		})
-	})
+	_ = godotenv.Load()
 
 	firestoreProjectID := os.Getenv("FIRESTORE_PROJECT_ID")
 	if firestoreProjectID == "" {
@@ -53,8 +52,10 @@ func main() {
 	measurementRepo := repository.NewMeasurementRepository(firestoreClient)
 	measurementService := service.NewMeasurementService(measurementRepo)
 	measurementController := controller.NewMeasurementController(measurementService)
+	adminController := controller.NewAdminController(measurementService)
 
 	routes.RegisterMeasurementRoutes(app, measurementController)
+	routes.RegisterAdminRoutes(app, adminController)
 
 	if err := app.Listen(":8080"); err != nil {
 		log.Fatal().Err(err).Msg("Failed to start server")

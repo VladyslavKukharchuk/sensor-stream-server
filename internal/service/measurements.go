@@ -10,6 +10,7 @@ import (
 
 type Repository interface {
 	Add(ctx context.Context, m *model.Measurement) error
+	List(ctx context.Context) ([]*model.Measurement, error)
 }
 
 type MeasurementService struct {
@@ -27,4 +28,13 @@ func (s *MeasurementService) Add(ctx context.Context, m *model.Measurement) erro
 	}
 
 	return nil
+}
+
+func (s *MeasurementService) List(ctx context.Context) ([]*model.Measurement, error) {
+	measurements, err := s.repository.List(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("getting measurements: %w", err)
+	}
+
+	return measurements, nil
 }

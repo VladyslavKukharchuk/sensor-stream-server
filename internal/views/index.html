@@ -1,12 +1,25 @@
+{{define "index"}}
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>{{.Title}}</title>
-    </head>
-    <body>
-        <h1>{{.Title}}</h1>
-        
-        <p>Welcome on sensor-stream!</p>
-    </body>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>{{.Title}}</title>
+    
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+
+{{template "header"}}
+
+<main>
+    <h2>Ласкаво просимо!</h2>
+
+    <p>Це головна сторінка адмінки.</p>
+</main>
+
+{{template "footer"}}
+
+</body>
 </html>
+{{end}}
