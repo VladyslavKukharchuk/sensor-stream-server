@@ -15,14 +15,13 @@ import (
 const devicesCollection = "devices"
 
 type device struct {
-	ID        string    `firestore:"id"`
 	MAC       string    `firestore:"mac"`
 	CreatedAt time.Time `firestore:"created_at"`
 }
 
-func (m *device) toDeviceModel() *model.Device {
+func (m *device) toDeviceModel(id string) *model.Device {
 	return &model.Device{
-		ID:        m.ID,
+		ID:        id,
 		MAC:       m.MAC,
 		CreatedAt: m.CreatedAt,
 	}
@@ -43,12 +42,10 @@ func (r *DevicesRepository) GetByMAC(ctx context.Context, mac string) (*model.De
 		Documents(ctx)
 
 	doc, err := iter.Next()
-
 	if err != nil {
 		if errors.Is(err, iterator.Done) {
 			return nil, nil
 		}
-
 		return nil, fmt.Errorf("GetByMAC firestore query: %w", err)
 	}
 
@@ -57,19 +54,24 @@ func (r *DevicesRepository) GetByMAC(ctx context.Context, mac string) (*model.De
 		return nil, fmt.Errorf("parsing device data: %w", err)
 	}
 
-	d.ID = doc.Ref.ID
-
-	return d.toDeviceModel(), nil
+	return d.toDeviceModel(doc.Ref.ID), nil
 }
 
-func (r *DevicesRepository) Add(ctx context.Context, device *model.Device) (*model.Device, error) {
+func (r *DevicesRepository) Add(ctx context.Context, m *model.Device) (*model.Device, error) {
 	docRef := r.client.Collection(devicesCollection).NewDoc()
-	device.ID = docRef.ID
 
-	_, err := docRef.Set(ctx, device)
+	data := device{
+		MAC:       m.MAC,
+		CreatedAt: time.Now().UTC(),
+	}
+
+	_, err := docRef.Set(ctx, data)
 	if err != nil {
 		return nil, fmt.Errorf("adding device to firestore: %w", err)
 	}
 
-	return device, nil
+	m.ID = docRef.ID
+	m.CreatedAt = data.CreatedAt
+
+	return m, nil
 }
