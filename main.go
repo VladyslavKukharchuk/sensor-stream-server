@@ -25,7 +25,7 @@ func main() {
 		Views: engine,
 	})
 
-	app.Static("/", "./internal/public")
+	app.Static("/", "./public")
 
 	app.Use(logger.New())
 	app.Use(cors.New())
