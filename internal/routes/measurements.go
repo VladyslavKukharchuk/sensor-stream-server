@@ -10,4 +10,5 @@ func RegisterMeasurementRoutes(app *fiber.App, measurementController *controller
 	api := app.Group("/api/v1")
 
 	api.Post("/measurements", measurementController.Add)
+	api.Post("/devices, ")
 }
