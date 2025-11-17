@@ -1,9 +1,16 @@
+html {
+    height: 100%;
+}
+
 body {
     font-family: "Inter", Arial, sans-serif;
     background-color: #f8f9fa;
     margin: 0;
     padding: 0;
     color: #333;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 header {
@@ -34,6 +41,7 @@ nav a:hover {
 
 main {
     padding: 30px 40px;
+    flex: 1;
 }
 
 h2 {
@@ -71,7 +79,7 @@ tr:hover td {
 footer {
     text-align: center;
     padding: 15px;
-    margin-top: 40px;
+    margin-top: auto;
     color: #666;
     font-size: 14px;
 }
