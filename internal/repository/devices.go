@@ -8,6 +8,8 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"google.golang.org/api/iterator"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"sensor-stream-server/internal/model"
 )
@@ -75,4 +77,49 @@ func (r *DevicesRepository) Add(ctx context.Context, m *model.Device) (*model.De
 	m.CreatedAt = data.CreatedAt
 
 	return m, nil
+}
+
+func (r *DevicesRepository) List(ctx context.Context) ([]*model.Device, error) {
+	iter := r.client.Collection(devicesCollection).OrderBy("created_at", firestore.Desc).Documents(ctx)
+	defer iter.Stop()
+
+	var devices []*model.Device
+
+	for {
+		doc, err := iter.Next()
+		if err != nil {
+			if errors.Is(err, iterator.Done) {
+				break
+			}
+
+			return nil, fmt.Errorf("failed to iterate devices: %w", err)
+		}
+
+		var m device
+		if err := doc.DataTo(&m); err != nil {
+			return nil, fmt.Errorf("failed to parse devices document: %w", err)
+		}
+
+		devices = append(devices, m.toDeviceModel(doc.Ref.ID))
+	}
+
+	return devices, nil
+}
+
+func (r *DevicesRepository) GetByID(ctx context.Context, id string) (*model.Device, error) {
+	doc, err := r.client.Collection(devicesCollection).Doc(id).Get(ctx)
+	if err != nil {
+		if status.Code(err) == codes.NotFound {
+			return nil, nil
+		}
+
+		return nil, fmt.Errorf("GetByID: %w", err)
+	}
+
+	var d device
+	if err := doc.DataTo(&d); err != nil {
+		return nil, fmt.Errorf("parse device data: %w", err)
+	}
+
+	return d.toDeviceModel(doc.Ref.ID), nil
 }

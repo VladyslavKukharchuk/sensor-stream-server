@@ -11,7 +11,9 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/rs/zerolog/log"
 
-	"sensor-stream-server/internal/controller"
+	"sensor-stream-server/internal/controller/admin"
+	"sensor-stream-server/internal/controller/devices"
+	"sensor-stream-server/internal/controller/measurements"
 	"sensor-stream-server/internal/db"
 	"sensor-stream-server/internal/repository"
 	"sensor-stream-server/internal/routes"
@@ -51,11 +53,11 @@ func main() {
 
 	measurementRepo := repository.NewMeasurementRepository(firestoreClient)
 	measurementService := service.NewMeasurementService(measurementRepo)
-	measurementController := controller.NewMeasurementController(measurementService)
+	measurementController := measurements.NewController(measurementService)
 	devicesRepo := repository.NewDevicesRepository(firestoreClient)
 	devicesService := service.NewDevicesService(devicesRepo)
-	devicesController := controller.NewDevicesController(devicesService)
-	adminController := controller.NewAdminController(measurementService)
+	devicesController := devices.NewController(devicesService)
+	adminController := admin.NewController(measurementService, devicesService)
 
 	routes.RegisterMeasurementRoutes(app, measurementController, devicesController)
 	routes.RegisterAdminRoutes(app, adminController)

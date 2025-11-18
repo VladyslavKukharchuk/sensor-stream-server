@@ -1,4 +1,4 @@
-package controller
+package devices
 
 import (
 	"context"
@@ -9,23 +9,23 @@ import (
 	"sensor-stream-server/internal/model"
 )
 
-type DevicesService interface {
+type Service interface {
 	Add(context.Context, string) (*model.Device, error)
 }
 
-type DevicesController struct {
-	service DevicesService
+type Controller struct {
+	service Service
 }
 
-func NewDevicesController(service DevicesService) *DevicesController {
-	return &DevicesController{service: service}
+func NewController(service Service) *Controller {
+	return &Controller{service: service}
 }
 
 type DeviceRequest struct {
 	MAC string `json:"mac"`
 }
 
-func (c *DevicesController) Add(f *fiber.Ctx) error {
+func (c *Controller) Add(f *fiber.Ctx) error {
 	var (
 		ctx = context.Background()
 	)

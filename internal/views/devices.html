@@ -1,4 +1,4 @@
-{{define "measurements"}}
+{{define "devices"}}
 <!DOCTYPE html>
 <html lang="uk">
 <head>
@@ -13,27 +13,25 @@
 {{template "header"}}
 
 <main>
-    <h2>Sensors stream</h2>
+    <h2>Devices</h2>
 
     <table>
         <thead>
         <tr>
-            <th>DeviceID</th>
-            <th>Date</th>
-            <th>Temperature</th>
-            <th>Humidity</th>
+            <th>ID</th>
+            <th>MAC</th>
+            <th>CreatedAt</th>
         </tr>
         </thead>
 
         <tbody>
-        {{range .Measurements}}
+        {{range .Devices}}
         <tr>
             <td>
-                <a href="/admin/devices/{{.DeviceID}}">{{.DeviceID}}</a>
+                <a href="/admin/devices/{{.ID}}">{{.ID}}</a>
             </td>
-            <td>{{.Timestamp.Format "2006-01-02 15:04:05"}}</td>
-            <td>{{.Temperature}} °C</td>
-            <td>{{.Humidity}} %</td>
+            <td>{{.MAC}}</td>
+            <td>{{.CreatedAt.Format "2006-01-02 15:04:05"}}</td>
         </tr>
         {{end}}
         </tbody>
