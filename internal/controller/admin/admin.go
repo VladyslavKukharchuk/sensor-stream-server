@@ -3,6 +3,7 @@ package admin
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/gofiber/fiber/v2"
 
@@ -80,11 +81,11 @@ func (c *Controller) DevicePage(f *fiber.Ctx) error {
 
 	device, err := c.ds.GetByID(ctx, id)
 	if err != nil {
-		return f.Status(500).SendString(err.Error())
+		return f.Status(http.StatusInternalServerError).SendString(err.Error())
 	}
 
 	if device == nil {
-		return f.Status(404).SendString("Device not found")
+		return f.Status(http.StatusNotFound).SendString("Device not found")
 	}
 
 	return f.Render("device", fiber.Map{
