@@ -1,4 +1,4 @@
-package controller
+package measurements
 
 import (
 	"context"
@@ -14,12 +14,12 @@ type Service interface {
 	Add(ctx context.Context, m *model.Measurement) error
 }
 
-type MeasurementController struct {
+type Controller struct {
 	service Service
 }
 
-func NewMeasurementController(service Service) *MeasurementController {
-	return &MeasurementController{service: service}
+func NewController(service Service) *Controller {
+	return &Controller{service: service}
 }
 
 type MeasurementRequest struct {
@@ -38,7 +38,7 @@ func (m MeasurementRequest) toMeasurementModel() *model.Measurement {
 	}
 }
 
-func (c *MeasurementController) Add(f *fiber.Ctx) error {
+func (c *Controller) Add(f *fiber.Ctx) error {
 	var (
 		ctx = context.Background()
 	)

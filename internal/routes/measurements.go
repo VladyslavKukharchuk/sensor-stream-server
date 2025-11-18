@@ -3,16 +3,17 @@ package routes
 import (
 	"github.com/gofiber/fiber/v2"
 
-	"sensor-stream-server/internal/controller"
+	"sensor-stream-server/internal/controller/devices"
+	"sensor-stream-server/internal/controller/measurements"
 )
 
 func RegisterMeasurementRoutes(
 	app *fiber.App,
-	measurementController *controller.MeasurementController,
-	devicesController *controller.DevicesController,
+	measurementController *measurements.Controller,
+	devicesController *devices.Controller,
 ) {
-	api := app.Group("/api/v1")
+	r := app.Group("/api/v1")
 
-	api.Post("/measurements", measurementController.Add)
-	api.Post("/devices", devicesController.Add)
+	r.Post("/measurements", measurementController.Add)
+	r.Post("/devices", devicesController.Add)
 }
