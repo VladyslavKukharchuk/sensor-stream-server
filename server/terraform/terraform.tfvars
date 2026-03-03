@@ -1,1 +1,5 @@
 project_id = "vladyslav-kukharchuk-sandbox"
+region = "us-central1"
+service_name     = "sensor-stream-server"
+repository_name     = "sensor-stream"
+firestore_database_id = "sensor-stream"

@@ -1,38 +1,3 @@
-# Enable required APIs
-resource "google_project_service" "run_api" {
-  service            = "run.googleapis.com"
-  disable_on_destroy = false
-}
-
-resource "google_project_service" "artifact_registry_api" {
-  service            = "artifactregistry.googleapis.com"
-  disable_on_destroy = false
-}
-
-resource "google_project_service" "firestore_api" {
-  service            = "firestore.googleapis.com"
-  disable_on_destroy = false
-}
-
-# Artifact Registry for Docker images
-resource "google_artifact_registry_repository" "repo" {
-  location      = var.region
-  repository_id = var.repository_name
-  description   = "Docker repository for Sensor Stream Server"
-  format        = "DOCKER"
-
-  depends_on = [google_project_service.artifact_registry_api]
-}
-
-# Firestore Database (Native mode)
-resource "google_firestore_database" "database" {
-  name        = var.firestore_database_id
-  location_id = var.region
-  type        = "FIRESTORE_NATIVE"
-
-  depends_on = [google_project_service.firestore_api]
-}
-
 # Service Account for Cloud Run
 resource "google_service_account" "cloud_run_sa" {
   account_id   = "sensor-stream-runner"
@@ -46,8 +11,7 @@ resource "google_project_iam_member" "firestore_user" {
   member  = "serviceAccount:${google_service_account.cloud_run_sa.email}"
 }
 
-# Cloud Run Service (Initial Placeholder)
-# Note: The actual image will be pushed via CI/CD
+# Cloud Run Service
 resource "google_cloud_run_v2_service" "default" {
   name     = var.service_name
   location = var.region
@@ -66,7 +30,7 @@ resource "google_cloud_run_v2_service" "default" {
       }
       env {
         name  = "FIRESTORE_DATABASE_ID"
-        value = var.firestore_database_id
+        value = var.database_id
       }
     }
   }
@@ -76,13 +40,13 @@ resource "google_cloud_run_v2_service" "default" {
     percent = 100
   }
 
-  depends_on = [google_project_service.run_api, google_project_iam_member.firestore_user]
-
   lifecycle {
     ignore_changes = [
       template[0].containers[0].image,
     ]
   }
+
+  depends_on = [google_project_iam_member.firestore_user]
 }
 
 # Allow unauthenticated access
