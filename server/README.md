@@ -37,6 +37,8 @@ go run main.go
 
 terraform init
 
+terraform plan
+
 terraform apply
 
 3. Create new artifacts repository 

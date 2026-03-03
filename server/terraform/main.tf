@@ -1,5 +1,6 @@
 terraform {
   required_version = ">= 1.0"
+
   required_providers {
     google = {
       source  = "hashicorp/google"
@@ -42,3 +43,13 @@ module "cloud_run" {
 
   depends_on = [module.services, module.database]
 }
+
+module "wif" {
+  source            = "./modules/wif"
+  project_id        = var.project_id
+  github_repository = var.github_repository
+  cloud_run_sa_id   = module.cloud_run.service_account_id
+
+  depends_on = [module.services, module.cloud_run]
+}
+

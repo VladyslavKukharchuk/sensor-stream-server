@@ -22,3 +22,8 @@ variable "firestore_database_id" {
   description = "The ID of the Firestore database"
   type        = string
 }
+
+variable "github_repository" {
+  description = "The GitHub repository in format 'username/repo-name'"
+  type        = string
+}
