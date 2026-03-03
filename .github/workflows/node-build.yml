@@ -41,6 +41,7 @@ jobs:
         run: |
           arduino-cli lib install "DHT sensor library"
           arduino-cli lib install "Adafruit Unified Sensor"
+          arduino-cli lib install "ArduinoJson"
 
       - name: Prepare secrets.h
         run: cp node/secrets.template.h node/secrets.h
