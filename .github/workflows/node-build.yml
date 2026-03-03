@@ -47,4 +47,4 @@ jobs:
 
       - name: Compile
         run: |
-          arduino-cli compile --fqbn esp32:esp32:esp32c6 node/sensor-stream-sensor-node.ino
+          arduino-cli compile --fqbn esp32:esp32:esp32c6 node/node.ino
