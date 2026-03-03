@@ -2,13 +2,20 @@ name: Deploy to Cloud Run
 
 on:
   pull_request:
+#    paths:
+#      - "server/**"
   push:
     branches:
       - main
+#    paths:
+#      - "server/**"
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
     permissions:
       id-token: write
       contents: read

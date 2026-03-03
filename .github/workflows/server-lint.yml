@@ -2,8 +2,12 @@ name: Lint Go code
 
 on:
   pull_request:
+#    paths:
+#      - "server/**"
   push:
     branches: [ "main" ]
+#    paths:
+#      - "server/**"
 
 jobs:
   lint:
@@ -24,3 +28,4 @@ jobs:
         with:
           version: latest
           args: --config .golangci.yml
+          working-directory: server
