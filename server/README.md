@@ -34,7 +34,13 @@ go run main.go
       -f build/Dockerfile \
       -t sensor-stream-server . 
     ```
-   
+
+terraform init
+
+terraform plan
+
+terraform apply
+
 3. Create new artifacts repository 
     ```bash
     gcloud artifacts repositories create sensor-repo \

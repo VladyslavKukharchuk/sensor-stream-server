@@ -1,3 +1,9 @@
 .idea
 
+# Terraform
+*.tfstate
+*.tfstate.backup
+.terraform
+.terraform.*
+
 .env
