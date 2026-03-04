@@ -32,7 +32,6 @@ static void event_handler(void* arg, esp_event_base_t event_base, int32_t event_
     } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
         wifi_event_sta_disconnected_t* event = (wifi_event_sta_disconnected_t*) event_data;
         ESP_LOGW(TAG, "WiFi Disconnected. Reason: %d", event->reason);
-
         esp_wifi_connect();
         ESP_LOGI(TAG, "retry to connect to the AP");
     } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
@@ -64,7 +63,6 @@ void wifi_init_sta(void) {
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
     ESP_ERROR_CHECK(esp_wifi_start());
-    ESP_LOGI(TAG, "wifi_init_sta finished.");
 }
 
 // --- Time ---
@@ -87,7 +85,7 @@ void get_timestamp(char *buf, size_t len) {
 void init_spiffs() {
     esp_vfs_spiffs_conf_t conf = {
       .base_path = "/spiffs",
-      .partition_label = NULL,
+      .partition_label = "storage",
       .max_files = 5,
       .format_if_mount_failed = true
     };
@@ -144,16 +142,17 @@ void send_measurement(float temp, float hum) {
     free(post_data);
 }
 
-// --- Main Task ---
+// --- Sensor Task ---
 void sensor_task(void *pvParameters) {
     float temp, hum;
+
     while(1) {
         esp_err_t res = dht_read_float_data(DHT_TYPE, DHT_GPIO, &hum, &temp);
         if (res == ESP_OK) {
             ESP_LOGI(TAG, "Reading: T=%.1f C, H=%.1f%%", temp, hum);
             send_measurement(temp, hum);
         } else {
-            ESP_LOGE(TAG, "Could not read data from DHT sensor: %d", res);
+            ESP_LOGE(TAG, "DHT Sensor Error: %s (%d)", esp_err_to_name(res), res);
         }
         
         vTaskDelay(pdMS_TO_TICKS(SEND_INTERVAL_SEC * 1000));
@@ -170,15 +169,16 @@ void app_main(void) {
 
     wifi_init_sta();
     xEventGroupWaitBits(s_wifi_event_group, WIFI_CONNECTED_BIT, pdFALSE, pdTRUE, portMAX_DELAY);
-    
+
     setup_time();
     init_spiffs();
-    
+
     if (!read_device_id()) {
-        ESP_LOGI(TAG, "Device ID not found. Need registration logic here (similar to Arduino)");
-        // Registration logic placeholder
-        strcpy(device_id, "esp32-c6-idf-001"); 
+        ESP_LOGI(TAG, "Device ID not found. Using default.");
+        strcpy(device_id, "esp32-c6-001");
+        save_device_id(device_id);
     }
+    ESP_LOGI(TAG, "Device ID: %s", device_id);
 
     xTaskCreate(sensor_task, "sensor_task", 4096, NULL, 5, NULL);
 }
