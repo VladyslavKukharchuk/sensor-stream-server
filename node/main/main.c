@@ -6,7 +6,7 @@
 #include "esp_log.h"
 #include "nvs_flash.h"
 #include "esp_http_client.h"
-#include "esp_sntp.h"
+#include "esp_netif_sntp.h"
 #include "esp_spiffs.h"
 #include "cJSON.h"
 #include "dht.h"
@@ -64,9 +64,8 @@ void wifi_init_sta(void) {
 
 // --- Time ---
 void setup_time() {
-    esp_sntp_setoperatingmode(SNTP_OPMODE_POLL);
-    esp_sntp_setservername(0, "pool.ntp.org");
-    esp_sntp_init();
+    esp_sntp_config_t config = ESP_NETIF_SNTP_DEFAULT_CONFIG("pool.ntp.org");
+    esp_netif_sntp_init(&config);
     setenv("TZ", "EET-2EEST,M3.5.0/3,M10.5.0/4", 1);
     tzset();
 }

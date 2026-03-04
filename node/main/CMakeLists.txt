@@ -1,3 +1,3 @@
 idf_component_register(SRCS "main.c"
                     INCLUDE_DIRS "."
-                    PRIV_REQUIRES nvs_flash esp_wifi esp_event esp_netif esp_http_client esp_spiffs esp_system cjson dht esp_idf_lib_helpers)
+                    PRIV_REQUIRES nvs_flash esp_wifi esp_event esp_netif esp_http_client spiffs esp_system json dht esp_idf_lib_helpers)
