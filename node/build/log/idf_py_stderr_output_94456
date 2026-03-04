@@ -1,9 +1,0 @@
-CMake Error at /Users/vladyslav.kukharchuk/esp/esp-idf/tools/cmake/build.cmake:268 (message):
-  Failed to resolve component 'esp_sntp'.
-Call Stack (most recent call first):
-  /Users/vladyslav.kukharchuk/esp/esp-idf/tools/cmake/build.cmake:310 (__build_resolve_and_add_req)
-  /Users/vladyslav.kukharchuk/esp/esp-idf/tools/cmake/build.cmake:607 (__build_expand_requirements)
-  /Users/vladyslav.kukharchuk/esp/esp-idf/tools/cmake/project.cmake:710 (idf_build_process)
-  CMakeLists.txt:6 (project)
-
-
