@@ -19,7 +19,7 @@
 static const char *TAG = "SENSOR_NODE";
 
 #define DHT_GPIO 4
-#define DHT_TYPE DHT_TYPE_DHT22
+#define DHT_TYPE DHT_TYPE_AM2301
 
 #define WIFI_CONNECTED_BIT BIT0
 static EventGroupHandle_t s_wifi_event_group;
