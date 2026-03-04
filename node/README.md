@@ -78,8 +78,25 @@ This project demonstrates reading temperature and humidity from a **DHT22 (AM230
     ```
     Тепер ви зможете просто написати get_idf у новому терміналі, і все налаштується автоматично.
 
+Build
+```
 idf.py set-target esp32c6
-idf.py build flash monito
+```
+
+Upload
+```
+idf.py build flash
+```
+
+Monitor
+```
+idf.py monitor
+```
+
+Exit monitor
+```
+Ctrl + ]
+```
 
 1. Copy secrets.template.h to `secrets.h` and fill in your credentials:
 2. Install the required libraries via Arduino IDE.
