@@ -1,9 +1,16 @@
 # Variables
 SERVER_DIR=server
 NODE_DIR=node
-FQBN=esp32:esp32:esp32c6
 
-.PHONY: server-lint server-run node-lint node-compile
+.PHONY: help server-lint server-lint-fix server-run node-lint node-compile node-upload node-monitor
+
+help:
+	@echo "Available commands:"
+	@echo "  make server-lint    - Run golangci-lint for the server"
+	@echo "  make server-run     - Run the Go server"
+	@echo "  make node-compile   - Compile the ESP-IDF project"
+	@echo "  make node-upload    - Upload firmware via idf.py flash"
+	@echo "  make node-monitor   - Open serial monitor via idf.py monitor"
 
 # Server
 server-lint:
@@ -15,9 +22,12 @@ server-lint-fix:
 server-run:
 	cd $(SERVER_DIR) && go run main.go
 
-# Node
-node-lint:
-	arduino-lint --path $(NODE_DIR) --recursive --project-type sketch
-
+# Node (ESP-IDF)
 node-compile:
-	arduino-cli compile --fqbn $(FQBN) $(NODE_DIR)/node.ino
+	cd $(NODE_DIR) && idf.py build
+
+node-upload:
+	cd $(NODE_DIR) && idf.py flash
+
+node-monitor:
+	cd $(NODE_DIR) && idf.py monitor
