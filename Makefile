@@ -22,12 +22,14 @@ server-lint-fix:
 server-run:
 	cd $(SERVER_DIR) && go run main.go
 
+IDF_EXPORT = . $(HOME)/esp/esp-idf/export.sh
+
 # Node
 node-compile:
-	cd $(NODE_DIR) && idf.py build
+	($(IDF_EXPORT) && cd $(NODE_DIR) && idf.py build)
 
 node-upload:
-	cd $(NODE_DIR) && idf.py flash
+	($(IDF_EXPORT) && cd $(NODE_DIR) && idf.py flash)
 
 node-monitor:
-	cd $(NODE_DIR) && idf.py monitor
+	($(IDF_EXPORT) && cd $(NODE_DIR) && idf.py monitor)
