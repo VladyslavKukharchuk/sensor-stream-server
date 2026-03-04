@@ -45,6 +45,39 @@ This project demonstrates reading temperature and humidity from a **DHT22 (AM230
 
 ### 🔧 Setup
 
+1. Встановлення залежностей через Homebrew
+   Відкрийте термінал і встановіть необхідні системні пакети:
+   ```
+   brew install cmake ninja dfu-util python3
+   ``` 
+2. Завантаження ESP-IDF SDK
+    ```
+    mkdir -p ~/esp
+    cd ~/esp
+    git clone -b v5.3 --recursive https://github.com/espressif/esp-idf.git
+    ```
+
+3. Інсталяція інструментів
+   Запустіть скрипт інсталяції, який завантажить необхідні тулчейни:
+   ```
+    cd ~/esp/esp-idf
+   ./install.sh esp32c6
+   ```
+
+4. Налаштування змінних оточення (export)
+   Щоб команда `idf.py` стала доступною в терміналі, потрібно виконати:
+
+    ```
+    ~/esp/esp-idf/export.sh
+    ```
+    Порада: Щоб не вводити це кожного разу, додайте аліас у свій ~/.zshrc:
+
+    ```
+    echo 'alias get_idf=". $HOME/esp/esp-idf/export.sh"' >> ~/.zshrc
+    source ~/.zshrc
+    ```
+    Тепер ви зможете просто написати get_idf у новому терміналі, і все налаштується автоматично.
+
 1. Copy secrets.template.h to `secrets.h` and fill in your credentials:
 2. Install the required libraries via Arduino IDE.
 3. Upload the sketch to your ESP32-C6-Zero.

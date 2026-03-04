@@ -22,7 +22,7 @@ server-lint-fix:
 server-run:
 	cd $(SERVER_DIR) && go run main.go
 
-# Node (ESP-IDF)
+# Node
 node-compile:
 	cd $(NODE_DIR) && idf.py build
 

@@ -9,6 +9,7 @@
 #include "esp_sntp.h"
 #include "esp_spiffs.h"
 #include "cJSON.h"
+#include "dht.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
@@ -16,6 +17,9 @@
 #include "secrets.h"
 
 static const char *TAG = "SENSOR_NODE";
+
+#define DHT_GPIO 4
+#define DHT_TYPE DHT_TYPE_DHT22
 
 #define WIFI_CONNECTED_BIT BIT0
 static EventGroupHandle_t s_wifi_event_group;
@@ -138,13 +142,15 @@ void send_measurement(float temp, float hum) {
 
 // --- Main Task ---
 void sensor_task(void *pvParameters) {
+    float temp, hum;
     while(1) {
-        // Placeholder for real DHT22 reading
-        float temp = 25.0 + (rand() % 100) / 100.0;
-        float hum = 50.0 + (rand() % 100) / 100.0;
-        
-        ESP_LOGI(TAG, "Reading: T=%.1f C, H=%.1f%%", temp, hum);
-        send_measurement(temp, hum);
+        esp_err_t res = dht_read_float_data(DHT_TYPE, DHT_GPIO, &hum, &temp);
+        if (res == ESP_OK) {
+            ESP_LOGI(TAG, "Reading: T=%.1f C, H=%.1f%%", temp, hum);
+            send_measurement(temp, hum);
+        } else {
+            ESP_LOGE(TAG, "Could not read data from DHT sensor: %d", res);
+        }
         
         vTaskDelay(pdMS_TO_TICKS(SEND_INTERVAL_SEC * 1000));
     }
