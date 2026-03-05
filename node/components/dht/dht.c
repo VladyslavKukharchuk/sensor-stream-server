@@ -9,8 +9,6 @@
 #include <esp_timer.h>
 #include <driver/gpio.h>
 
-static const char *TAG = "dht";
-
 #if HELPER_TARGET_IS_ESP32 || defined(CONFIG_IDF_TARGET_ESP32C6)
 static portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
 #define PORT_ENTER_CRITICAL() portENTER_CRITICAL(&mux)
