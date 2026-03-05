@@ -8,6 +8,7 @@
 #include "esp_http_client.h"
 #include "esp_netif_sntp.h"
 #include "esp_spiffs.h"
+#include "esp_crt_bundle.h"
 #include "cJSON.h"
 #include "dht.h"
 #include "freertos/FreeRTOS.h"
@@ -126,6 +127,8 @@ void send_measurement(float temp, float hum) {
     esp_http_client_config_t config = {
         .url = SERVER_URL "/api/v1/measurements",
         .method = HTTP_METHOD_POST,
+        .crt_bundle_attach = esp_crt_bundle_attach, // Attach the default CA bundle for HTTPS
+        .skip_cert_common_name_check = true,       // Helpful for shared hosting/development
     };
     esp_http_client_handle_t client = esp_http_client_init(&config);
     esp_http_client_set_header(client, "Content-Type", "application/json");
