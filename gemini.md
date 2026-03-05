@@ -41,3 +41,21 @@ The hardware component is based on the ESP32-C6 and a DHT22 sensor.
 - **Clean Code**: Clear folder structure and component naming.
 - **Separation of Concerns**: Each layer has a strictly defined role.
 - **Infrastructure as Code**: GitHub Actions (`.github/workflows/`) are present for build automation, linting, and deployment.
+
+## 5. API Endpoints
+
+### 5.1. Sensor Node API (`/api/v1`)
+Endpoints used by ESP32 hardware nodes to transmit data.
+
+- `POST /api/v1/measurements`: Submit new sensor readings.
+    - **Payload**: `{ "device_id": "string", "temperature": float, "humidity": float, "timestamp": "RFC3339 string" }`
+- `POST /api/v1/devices`: Register or update hardware device information.
+    - **Payload**: `{ "id": "string", "mac": "string" }`
+
+### 5.2. Admin Interface (`/admin`)
+Server-side rendered (SSR) pages for data management and visualization.
+
+- `GET /admin/`: Dashboard overview.
+- `GET /admin/measurements`: Tabular view of historical data.
+- `GET /admin/devices`: List of all registered sensor nodes.
+- `GET /admin/devices/:id`: Detailed statistics and info for a specific node.
