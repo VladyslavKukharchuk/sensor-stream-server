@@ -9,6 +9,7 @@
 #include "esp_netif_sntp.h"
 #include "esp_spiffs.h"
 #include "esp_crt_bundle.h"
+#include "esp_mac.h"
 #include "cJSON.h"
 #include "dht.h"
 #include "freertos/FreeRTOS.h"
@@ -34,7 +35,6 @@ static void event_handler(void* arg, esp_event_base_t event_base, int32_t event_
         wifi_event_sta_disconnected_t* event = (wifi_event_sta_disconnected_t*) event_data;
         ESP_LOGW(TAG, "WiFi Disconnected. Reason: %d", event->reason);
         esp_wifi_connect();
-        ESP_LOGI(TAG, "retry to connect to the AP");
     } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
         ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
         ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
@@ -112,7 +112,62 @@ void save_device_id(const char* id) {
     }
 }
 
-// --- HTTP ---
+// --- Registration ---
+bool register_device() {
+    uint8_t mac[6];
+    esp_read_mac(mac, ESP_MAC_WIFI_STA);
+    char mac_str[18];
+    snprintf(mac_str, sizeof(mac_str), "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+
+    ESP_LOGI(TAG, "Registering device with MAC: %s", mac_str);
+
+    cJSON *root = cJSON_CreateObject();
+    cJSON_AddStringToObject(root, "mac", mac_str);
+    char *post_data = cJSON_PrintUnformatted(root);
+
+    esp_http_client_config_t config = {
+        .url = SERVER_URL "/api/v1/devices",
+        .method = HTTP_METHOD_POST,
+        .crt_bundle_attach = esp_crt_bundle_attach,
+        .skip_cert_common_name_check = true,
+    };
+    esp_http_client_handle_t client = esp_http_client_init(&config);
+    esp_http_client_set_header(client, "Content-Type", "application/json");
+    esp_http_client_set_post_field(client, post_data, strlen(post_data));
+
+    bool success = false;
+    esp_err_t err = esp_http_client_perform(client);
+    if (err == ESP_OK) {
+        int status = esp_http_client_get_status_code(client);
+        if (status >= 200 && status < 300) {
+            char response_buffer[256];
+            int len = esp_http_client_read_response(client, response_buffer, sizeof(response_buffer) - 1);
+            if (len > 0) {
+                response_buffer[len] = '\0';
+                cJSON *resp = cJSON_Parse(response_buffer);
+                cJSON *id_item = cJSON_GetObjectItem(resp, "id");
+                if (cJSON_IsString(id_item)) {
+                    strcpy(device_id, id_item->valuestring);
+                    save_device_id(device_id);
+                    ESP_LOGI(TAG, "Registered successfully. Assigned ID: %s", device_id);
+                    success = true;
+                }
+                cJSON_Delete(resp);
+            }
+        } else {
+            ESP_LOGE(TAG, "Registration failed with status: %d", status);
+        }
+    } else {
+        ESP_LOGE(TAG, "Registration request failed: %s", esp_err_to_name(err));
+    }
+
+    esp_http_client_cleanup(client);
+    cJSON_Delete(root);
+    free(post_data);
+    return success;
+}
+
+// --- HTTP Measurements ---
 void send_measurement(float temp, float hum) {
     char timestamp[32];
     get_timestamp(timestamp, sizeof(timestamp));
@@ -127,8 +182,8 @@ void send_measurement(float temp, float hum) {
     esp_http_client_config_t config = {
         .url = SERVER_URL "/api/v1/measurements",
         .method = HTTP_METHOD_POST,
-        .crt_bundle_attach = esp_crt_bundle_attach, // Attach the default CA bundle for HTTPS
-        .skip_cert_common_name_check = true,       // Helpful for shared hosting/development
+        .crt_bundle_attach = esp_crt_bundle_attach,
+        .skip_cert_common_name_check = true,
     };
     esp_http_client_handle_t client = esp_http_client_init(&config);
     esp_http_client_set_header(client, "Content-Type", "application/json");
@@ -177,9 +232,11 @@ void app_main(void) {
     init_spiffs();
 
     if (!read_device_id()) {
-        ESP_LOGI(TAG, "Device ID not found. Using default.");
-        strcpy(device_id, "esp32-c6-001");
-        save_device_id(device_id);
+        ESP_LOGI(TAG, "Device ID not found in flash. Registering...");
+        if (!register_device()) {
+            ESP_LOGE(TAG, "Could not register device. Using fallback ID.");
+            strcpy(device_id, "fallback-id");
+        }
     }
     ESP_LOGI(TAG, "Device ID: %s", device_id);
 
