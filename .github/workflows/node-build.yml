@@ -16,6 +16,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Create secrets.h from template
+        run: cp node/main/secrets.template.h node/main/secrets.h
+
       - name: ESP-IDF Build
         uses: espressif/esp-idf-ci-action@v1
         with:
