@@ -2,12 +2,12 @@ name: Build Go project
 
 on:
   pull_request:
-#    paths:
-#      - "server/**"
+    paths:
+      - "server/**"
   push:
     branches: ["main"]
-#    paths:
-#      - "server/**"
+    paths:
+      - "server/**"
 
 jobs:
   build:

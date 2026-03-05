@@ -33,3 +33,6 @@ node-upload:
 
 node-monitor:
 	($(IDF_EXPORT) && cd $(NODE_DIR) && idf.py monitor)
+
+node-reset:
+	($(IDF_EXPORT) && cd $(NODE_DIR) && idf.py erase-flash)

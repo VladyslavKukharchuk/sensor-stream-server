@@ -2,12 +2,12 @@ name: Build Node
 
 on:
   pull_request:
-#    paths:
-#      - "node/**"
+    paths:
+      - "node/**"
   push:
     branches: ["main"]
-#    paths:
-#      - "node/**"
+    paths:
+      - "node/**"
 
 jobs:
   build:
