@@ -119,8 +119,8 @@ void send_measurement(float temp, float hum) {
 
     cJSON *root = cJSON_CreateObject();
     cJSON_AddStringToObject(root, "device_id", device_id);
-    cJSON_AddNumberToObject(root, "temperature", temp);
-    cJSON_AddNumberToObject(root, "humidity", hum);
+    cJSON_AddNumberToObject(root, "temperature", (int)(temp * 10) / 10.0);
+    cJSON_AddNumberToObject(root, "humidity", (int)(hum * 10) / 10.0);
     cJSON_AddStringToObject(root, "timestamp", timestamp);
     char *post_data = cJSON_PrintUnformatted(root);
 
