@@ -24,8 +24,7 @@ bool read_device_id(char* device_id, size_t size) {
     if (f == NULL) return false;
     fgets(device_id, size, f);
     fclose(f);
-    device_id[strcspn(device_id, "
-")] = 0;
+    device_id[strcspn(device_id, "\r\n")] = 0;
     return strlen(device_id) > 0;
 }
 
