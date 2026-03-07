@@ -1,10 +1,55 @@
 {{define "device"}}
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{.Title}}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device {{.Device.ID}} - Sensor Stream</title>
     <link rel="stylesheet" href="/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <style>
+        .controls {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: #f9f9f9;
+            cursor: pointer;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #333;
+            font-size: 0.9rem;
+        }
+        .btn.active {
+            background: #007AFF;
+            color: white;
+            border-color: #007AFF;
+        }
+        #chart {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-top: 20px;
+            min-height: 400px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .info-item {
+            background: #f0f4f8;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .info-label { font-size: 0.8rem; color: #666; text-transform: uppercase; }
+        .info-value { font-size: 1.1rem; font-weight: bold; color: #333; margin-top: 5px; }
+    </style>
 </head>
 
 <body>
@@ -12,15 +57,98 @@
 {{template "header"}}
 
 <main>
-    <h2>Device Details</h2>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>Device History</h2>
+        <a href="/admin/" class="btn">← Dashboard</a>
+    </div>
 
-    <table>
-        <tr><th>ID</th><td>{{.Device.ID}}</td></tr>
-        <tr><th>MAC</th><td>{{.Device.MAC}}</td></tr>
-        <tr><th>Created At</th><td>{{.Device.CreatedAt.Format "2006-01-02 15:04:05"}}</td></tr>
-    </table>
+    <div class="info-grid">
+        <div class="info-item">
+            <div class="info-label">Device ID</div>
+            <div class="info-value">{{.Device.ID}}</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">MAC Address</div>
+            <div class="info-value">{{.Device.MAC}}</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Registered</div>
+            <div class="info-value">{{.Device.CreatedAt.Format "Jan 02, 2006"}}</div>
+        </div>
+    </div>
 
-    <a href="/admin/devices" class="button">← Back to Devices</a>
+    <div class="controls">
+        <a href="?period=day" class="btn {{if eq .ActivePeriod "day"}}active{{end}}">Last 24h</a>
+        <a href="?period=week" class="btn {{if eq .ActivePeriod "week"}}active{{end}}">Last Week</a>
+        <a href="?period=month" class="btn {{if eq .ActivePeriod "month"}}active{{end}}">Last Month</a>
+    </div>
+
+    <div id="chart"></div>
+
+    <script>
+        const tempData = {{.TempData}};
+        const humData = {{.HumData}};
+
+        const options = {
+            series: [
+                {
+                    name: 'Temperature',
+                    data: tempData
+                },
+                {
+                    name: 'Humidity',
+                    data: humData
+                }
+            ],
+            chart: {
+                height: 450,
+                type: 'area',
+                toolbar: { show: true },
+                animations: { enabled: true }
+            },
+            colors: ['#FF4560', '#008FFB'],
+            dataLabels: { enabled: false },
+            stroke: { curve: 'smooth', width: 3 },
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    shadeIntensity: 1,
+                    opacityFrom: 0.45,
+                    opacityTo: 0.05,
+                    stops: [20, 100]
+                }
+            },
+            xaxis: {
+                type: 'datetime',
+                labels: {
+                    datetimeUTC: false
+                }
+            },
+            yaxis: [
+                {
+                    title: { text: 'Temperature (°C)' },
+                    labels: {
+                        formatter: (val) => val.toFixed(1) + '°C'
+                    }
+                },
+                {
+                    opposite: true,
+                    title: { text: 'Humidity (%)' },
+                    labels: {
+                        formatter: (val) => val.toFixed(0) + '%'
+                    }
+                }
+            ],
+            tooltip: {
+                x: { format: 'dd MMM HH:mm' },
+                shared: true
+            },
+            legend: { position: 'top', horizontalAlign: 'right' }
+        };
+
+        const chart = new ApexCharts(document.querySelector("#chart"), options);
+        chart.render();
+    </script>
 </main>
 
 {{template "footer"}}

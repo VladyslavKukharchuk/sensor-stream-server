@@ -21,6 +21,7 @@ const (
 type MeasurementService interface {
 	List(ctx context.Context) ([]*model.Measurement, error)
 	GetLatestByDeviceID(ctx context.Context, deviceID string) (*model.Measurement, error)
+	GetByDeviceID(ctx context.Context, deviceID string, since time.Time) ([]*model.Measurement, error)
 }
 
 type DevicesService interface {
@@ -141,23 +142,56 @@ func (c *Controller) DevicesPage(f *fiber.Ctx) error {
 	})
 }
 
+type ChartData struct {
+	Timestamp string  `json:"x"`
+	Value     float64 `json:"y"`
+}
+
 func (c *Controller) DevicePage(f *fiber.Ctx) error {
 	var (
-		ctx = context.Background()
-		id  = f.Params("id")
+		ctx    = context.Background()
+		id     = f.Params("id")
+		period = f.Query("period", "day")
 	)
 
 	device, err := c.ds.GetByID(ctx, id)
 	if err != nil {
 		return f.Status(http.StatusInternalServerError).SendString(err.Error())
 	}
-
 	if device == nil {
 		return f.Status(http.StatusNotFound).SendString("Device not found")
 	}
 
+	var since time.Time
+	switch period {
+	case "month":
+		since = time.Now().AddDate(0, -1, 0)
+	case "week":
+		since = time.Now().AddDate(0, 0, -7)
+	default:
+		since = time.Now().AddDate(0, 0, -1)
+	}
+
+	measurements, err := c.ms.GetByDeviceID(ctx, id, since)
+	if err != nil {
+		return f.Status(http.StatusInternalServerError).SendString(err.Error())
+	}
+
+	// Prepare data for ApexCharts
+	tempData := make([]ChartData, 0, len(measurements))
+	humData := make([]ChartData, 0, len(measurements))
+
+	for _, m := range measurements {
+		ts := m.Timestamp.Format(time.RFC3339)
+		tempData = append(tempData, ChartData{Timestamp: ts, Value: m.Temperature})
+		humData = append(humData, ChartData{Timestamp: ts, Value: m.Humidity})
+	}
+
 	return f.Render("device", fiber.Map{
-		"Title":  "Device " + id,
-		"Device": device,
+		"Title":        "Device Details",
+		"Device":       device,
+		"TempData":     tempData,
+		"HumData":      humData,
+		"ActivePeriod": period,
 	})
 }

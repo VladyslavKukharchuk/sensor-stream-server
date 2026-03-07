@@ -12,6 +12,7 @@ type Repository interface {
 	Add(ctx context.Context, m *model.Measurement) error
 	List(ctx context.Context) ([]*model.Measurement, error)
 	GetLatestByDeviceID(ctx context.Context, deviceID string) (*model.Measurement, error)
+	GetByDeviceID(ctx context.Context, deviceID string, since time.Time) ([]*model.Measurement, error)
 }
 
 type MeasurementService struct {
@@ -47,4 +48,13 @@ func (s *MeasurementService) GetLatestByDeviceID(ctx context.Context, deviceID s
 	}
 
 	return measurement, nil
+}
+
+func (s *MeasurementService) GetByDeviceID(ctx context.Context, deviceID string, since time.Time) ([]*model.Measurement, error) {
+	measurements, err := s.repository.GetByDeviceID(ctx, deviceID, since)
+	if err != nil {
+		return nil, fmt.Errorf("getting measurements for device %s: %w", deviceID, err)
+	}
+
+	return measurements, nil
 }
