@@ -25,11 +25,13 @@
         .device-card:hover {
             transform: translateY(-5px);
         }
-        .device-id {
-            font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 15px;
-            word-break: break-all;
+        .device-id a {
+            color: #007AFF;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .device-id a:hover {
+            text-decoration: underline;
         }
         .metrics {
             display: flex;
@@ -80,7 +82,7 @@
         {{range .Devices}}
         <div class="device-card">
             <h3>Sensor Node</h3>
-            <div class="device-id">ID: {{.ID}}</div>
+            <div class="device-id">ID: <a href="/admin/devices/{{.ID}}">{{.ID}}</a></div>
             
             <div class="metrics">
                 <div class="metric">
