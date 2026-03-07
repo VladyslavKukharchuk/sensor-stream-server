@@ -21,11 +21,13 @@ const (
 type MeasurementService interface {
 	List(ctx context.Context) ([]*model.Measurement, error)
 	GetLatestByDeviceID(ctx context.Context, deviceID string) (*model.Measurement, error)
+	GetByDeviceID(ctx context.Context, deviceID string, since time.Time) ([]*model.Measurement, error)
 }
 
 type DevicesService interface {
 	List(ctx context.Context) ([]*model.Device, error)
 	GetByID(ctx context.Context, id string) (*model.Device, error)
+	Update(ctx context.Context, id, name, location string) error
 }
 
 type Controller struct {
@@ -45,6 +47,9 @@ func NewController(
 
 type DeviceDashboardItem struct {
 	ID          string
+	Name        string
+	Location    string
+	MAC         string
 	Temperature float64
 	Humidity    float64
 	LastSeen    string
@@ -64,22 +69,9 @@ func (c *Controller) IndexPage(f *fiber.Ctx) error {
 	dashboardItems := make([]DeviceDashboardItem, 0, len(devices))
 
 	for _, device := range devices {
-		latest, err := c.ms.GetLatestByDeviceID(ctx, device.ID)
+		item, err := c.getDeviceDashboardItem(ctx, device)
 		if err != nil {
 			return f.Status(fiber.StatusInternalServerError).SendString(err.Error())
-		}
-
-		item := DeviceDashboardItem{
-			ID: device.ID,
-		}
-
-		if latest != nil {
-			item.Temperature = latest.Temperature
-			item.Humidity = latest.Humidity
-			item.UpdatedAt = latest.Timestamp
-			item.LastSeen = formatLastSeen(latest.Timestamp)
-		} else {
-			item.LastSeen = "Never"
 		}
 
 		dashboardItems = append(dashboardItems, item)
@@ -90,6 +82,31 @@ func (c *Controller) IndexPage(f *fiber.Ctx) error {
 			"Title":   "Dashboard",
 			"Devices": dashboardItems,
 		})
+}
+
+func (c *Controller) getDeviceDashboardItem(ctx context.Context, device *model.Device) (DeviceDashboardItem, error) {
+	latest, err := c.ms.GetLatestByDeviceID(ctx, device.ID)
+	if err != nil {
+		return DeviceDashboardItem{}, fmt.Errorf("getting latest measurement: %w", err)
+	}
+
+	item := DeviceDashboardItem{
+		ID:       device.ID,
+		Name:     device.Name,
+		Location: device.Location,
+		MAC:      device.MAC,
+	}
+
+	if latest != nil {
+		item.Temperature = latest.Temperature
+		item.Humidity = latest.Humidity
+		item.UpdatedAt = latest.Timestamp
+		item.LastSeen = formatLastSeen(latest.Timestamp)
+	} else {
+		item.LastSeen = "Never"
+	}
+
+	return item, nil
 }
 
 func formatLastSeen(t time.Time) string {
@@ -135,16 +152,32 @@ func (c *Controller) DevicesPage(f *fiber.Ctx) error {
 		return f.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
+	deviceItems := make([]DeviceDashboardItem, 0, len(devices))
+	for _, device := range devices {
+		item, err := c.getDeviceDashboardItem(ctx, device)
+		if err != nil {
+			return f.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		}
+
+		deviceItems = append(deviceItems, item)
+	}
+
 	return f.Render("devices", fiber.Map{
-		"Title":   "Devices",
-		"Devices": devices,
+		"Title":   "Device Management",
+		"Devices": deviceItems,
 	})
+}
+
+type ChartData struct {
+	Timestamp string  `json:"x"`
+	Value     float64 `json:"y"`
 }
 
 func (c *Controller) DevicePage(f *fiber.Ctx) error {
 	var (
-		ctx = context.Background()
-		id  = f.Params("id")
+		ctx    = context.Background()
+		id     = f.Params("id")
+		period = f.Query("period", "day")
 	)
 
 	device, err := c.ds.GetByID(ctx, id)
@@ -156,8 +189,51 @@ func (c *Controller) DevicePage(f *fiber.Ctx) error {
 		return f.Status(http.StatusNotFound).SendString("Device not found")
 	}
 
+	var since time.Time
+
+	switch period {
+	case "month":
+		since = time.Now().AddDate(0, -1, 0)
+	case "week":
+		since = time.Now().AddDate(0, 0, -7)
+	default:
+		since = time.Now().AddDate(0, 0, -1)
+	}
+
+	measurements, err := c.ms.GetByDeviceID(ctx, id, since)
+	if err != nil {
+		return f.Status(http.StatusInternalServerError).SendString(err.Error())
+	}
+
+	tempData := make([]ChartData, 0, len(measurements))
+	humData := make([]ChartData, 0, len(measurements))
+
+	for _, m := range measurements {
+		ts := m.Timestamp.Format(time.RFC3339)
+		tempData = append(tempData, ChartData{Timestamp: ts, Value: m.Temperature})
+		humData = append(humData, ChartData{Timestamp: ts, Value: m.Humidity})
+	}
+
 	return f.Render("device", fiber.Map{
-		"Title":  "Device " + id,
-		"Device": device,
+		"Title":        "Device Details",
+		"Device":       device,
+		"TempData":     tempData,
+		"HumData":      humData,
+		"ActivePeriod": period,
 	})
+}
+
+func (c *Controller) UpdateDevice(f *fiber.Ctx) error {
+	var (
+		ctx      = context.Background()
+		id       = f.Params("id")
+		name     = f.FormValue("name")
+		location = f.FormValue("location")
+	)
+
+	if err := c.ds.Update(ctx, id, name, location); err != nil {
+		return f.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+
+	return f.Redirect("/admin/devices/" + id)
 }

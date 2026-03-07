@@ -8,8 +8,6 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"google.golang.org/api/iterator"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 
 	"sensor-stream-server/internal/model"
 )
@@ -18,14 +16,18 @@ const devicesCollection = "devices"
 
 type device struct {
 	MAC       string    `firestore:"mac"`
+	Name      string    `firestore:"name"`
+	Location  string    `firestore:"location"`
 	CreatedAt time.Time `firestore:"created_at"`
 }
 
-func (m *device) toDeviceModel(id string) *model.Device {
+func (d *device) toDeviceModel(id string) *model.Device {
 	return &model.Device{
 		ID:        id,
-		MAC:       m.MAC,
-		CreatedAt: m.CreatedAt,
+		MAC:       d.MAC,
+		Name:      d.Name,
+		Location:  d.Location,
+		CreatedAt: d.CreatedAt,
 	}
 }
 
@@ -38,10 +40,8 @@ func NewDevicesRepository(client *firestore.Client) *DevicesRepository {
 }
 
 func (r *DevicesRepository) GetByMAC(ctx context.Context, mac string) (*model.Device, error) {
-	iter := r.client.Collection(devicesCollection).
-		Where("mac", "==", mac).
-		Limit(1).
-		Documents(ctx)
+	iter := r.client.Collection(devicesCollection).Where("mac", "==", mac).Limit(1).Documents(ctx)
+	defer iter.Stop()
 
 	doc, err := iter.Next()
 	if err != nil {
@@ -49,32 +49,29 @@ func (r *DevicesRepository) GetByMAC(ctx context.Context, mac string) (*model.De
 			return nil, nil
 		}
 
-		return nil, fmt.Errorf("GetByMAC firestore query: %w", err)
+		return nil, fmt.Errorf("getting device by mac: %w", err)
 	}
 
 	var d device
 	if err := doc.DataTo(&d); err != nil {
-		return nil, fmt.Errorf("parsing device data: %w", err)
+		return nil, fmt.Errorf("parsing device: %w", err)
 	}
 
 	return d.toDeviceModel(doc.Ref.ID), nil
 }
 
 func (r *DevicesRepository) Add(ctx context.Context, m *model.Device) (*model.Device, error) {
-	docRef := r.client.Collection(devicesCollection).NewDoc()
-
-	data := device{
+	docRef, _, err := r.client.Collection(devicesCollection).Add(ctx, device{
 		MAC:       m.MAC,
-		CreatedAt: time.Now().UTC(),
-	}
-
-	_, err := docRef.Set(ctx, data)
+		Name:      m.Name,
+		Location:  m.Location,
+		CreatedAt: m.CreatedAt,
+	})
 	if err != nil {
-		return nil, fmt.Errorf("adding device to firestore: %w", err)
+		return nil, fmt.Errorf("adding device: %w", err)
 	}
 
 	m.ID = docRef.ID
-	m.CreatedAt = data.CreatedAt
 
 	return m, nil
 }
@@ -92,15 +89,15 @@ func (r *DevicesRepository) List(ctx context.Context) ([]*model.Device, error) {
 				break
 			}
 
-			return nil, fmt.Errorf("failed to iterate devices: %w", err)
+			return nil, fmt.Errorf("iterating devices: %w", err)
 		}
 
-		var m device
-		if err := doc.DataTo(&m); err != nil {
-			return nil, fmt.Errorf("failed to parse devices document: %w", err)
+		var d device
+		if err := doc.DataTo(&d); err != nil {
+			return nil, fmt.Errorf("parsing device: %w", err)
 		}
 
-		devices = append(devices, m.toDeviceModel(doc.Ref.ID))
+		devices = append(devices, d.toDeviceModel(doc.Ref.ID))
 	}
 
 	return devices, nil
@@ -109,17 +106,27 @@ func (r *DevicesRepository) List(ctx context.Context) ([]*model.Device, error) {
 func (r *DevicesRepository) GetByID(ctx context.Context, id string) (*model.Device, error) {
 	doc, err := r.client.Collection(devicesCollection).Doc(id).Get(ctx)
 	if err != nil {
-		if status.Code(err) == codes.NotFound {
-			return nil, nil
-		}
-
-		return nil, fmt.Errorf("GetByID: %w", err)
+		return nil, fmt.Errorf("getting device by id: %w", err)
 	}
 
 	var d device
 	if err := doc.DataTo(&d); err != nil {
-		return nil, fmt.Errorf("parse device data: %w", err)
+		return nil, fmt.Errorf("parsing device: %w", err)
 	}
 
 	return d.toDeviceModel(doc.Ref.ID), nil
+}
+
+func (r *DevicesRepository) Update(ctx context.Context, m *model.Device) error {
+	_, err := r.client.Collection(devicesCollection).Doc(m.ID).Set(ctx, device{
+		MAC:       m.MAC,
+		Name:      m.Name,
+		Location:  m.Location,
+		CreatedAt: m.CreatedAt,
+	})
+	if err != nil {
+		return fmt.Errorf("updating device: %w", err)
+	}
+
+	return nil
 }

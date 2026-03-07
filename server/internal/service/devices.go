@@ -13,6 +13,7 @@ type DevicesRepository interface {
 	Add(ctx context.Context, m *model.Device) (*model.Device, error)
 	List(ctx context.Context) ([]*model.Device, error)
 	GetByID(ctx context.Context, id string) (*model.Device, error)
+	Update(ctx context.Context, m *model.Device) error
 }
 
 type DevicesService struct {
@@ -40,6 +41,22 @@ func (s *DevicesService) Add(ctx context.Context, mac string) (*model.Device, er
 	}
 
 	return newDevice, nil
+}
+
+func (s *DevicesService) Update(ctx context.Context, id, name, location string) error {
+	device, err := s.repository.GetByID(ctx, id)
+	if err != nil {
+		return fmt.Errorf("getting device: %w", err)
+	}
+
+	device.Name = name
+	device.Location = location
+
+	if err := s.repository.Update(ctx, device); err != nil {
+		return fmt.Errorf("updating device: %w", err)
+	}
+
+	return nil
 }
 
 func (s *DevicesService) List(ctx context.Context) ([]*model.Device, error) {

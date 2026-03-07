@@ -13,4 +13,5 @@ func RegisterAdminRoutes(app *fiber.App, adminController *admin.Controller) {
 	r.Get("/measurements", adminController.MeasurementsPage)
 	r.Get("/devices", adminController.DevicesPage)
 	r.Get("/devices/:id", adminController.DevicePage)
+	r.Post("/devices/:id", adminController.UpdateDevice)
 }
