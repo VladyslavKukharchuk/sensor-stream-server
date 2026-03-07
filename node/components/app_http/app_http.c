@@ -76,7 +76,7 @@ void send_measurement(const char* server_url, const char* device_id, float temp,
     time_t now;
     struct tm timeinfo;
     time(&now);
-    localtime_r(&now, &timeinfo);
+    gmtime_r(&now, &timeinfo); // Use UTC time
     char timestamp[32];
     strftime(timestamp, sizeof(timestamp), "%Y-%m-%dT%H:%M:%SZ", &timeinfo);
 

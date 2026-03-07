@@ -1,11 +1,74 @@
 {{define "index"}}
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{.Title}}</title>
-    
+
     <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px 0;
+        }
+        .device-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 20px;
+            border: 1px solid #eee;
+            transition: transform 0.2s;
+        }
+        .device-card:hover {
+            transform: translateY(-5px);
+        }
+        .device-id a {
+            color: #007AFF;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .device-id a:hover {
+            text-decoration: underline;
+        }
+        .metrics {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .metric {
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #333;
+        }
+        .metric-label {
+            font-size: 0.8rem;
+            color: #888;
+            text-transform: uppercase;
+        }
+        .last-seen {
+            font-size: 0.8rem;
+            color: #999;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .status-dot {
+            height: 8px;
+            width: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .status-online { background-color: #4CAF50; }
+        .status-offline { background-color: #bbb; }
+    </style>
 </head>
 
 <body>
@@ -13,9 +76,34 @@
 {{template "header"}}
 
 <main>
-    <h2>Welcome on Sensors stream service!</h2>
+    <h2>Dashboard</h2>
 
-    <p>This is main page.</p>
+    <div class="dashboard-grid">
+        {{range .Devices}}
+        <div class="device-card">
+            <h3>Sensor Node</h3>
+            <div class="device-id">ID: <a href="/admin/devices/{{.ID}}">{{.ID}}</a></div>
+            
+            <div class="metrics">
+                <div class="metric">
+                    <div class="metric-value">{{if .Temperature}}{{.Temperature}}°C{{else}}--{{end}}</div>
+                    <div class="metric-label">Temp</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">{{if .Humidity}}{{.Humidity}}%{{else}}--{{end}}</div>
+                    <div class="metric-label">Humidity</div>
+                </div>
+            </div>
+
+            <div class="last-seen">
+                <span class="status-dot {{if eq .LastSeen "Never"}}status-offline{{else}}status-online{{end}}"></span>
+                Last updated: {{.LastSeen}}
+            </div>
+        </div>
+        {{else}}
+        <p>No devices registered yet.</p>
+        {{end}}
+    </div>
 </main>
 
 {{template "footer"}}

@@ -85,3 +85,28 @@ func (r *MeasurementRepository) List(ctx context.Context) ([]*model.Measurement,
 
 	return measurements, nil
 }
+
+func (r *MeasurementRepository) GetLatestByDeviceID(ctx context.Context, deviceID string) (*model.Measurement, error) {
+	iter := r.client.Collection(measurementsCollection).
+		Where("device_id", "==", deviceID).
+		OrderBy("timestamp", firestore.Desc).
+		Limit(1).
+		Documents(ctx)
+	defer iter.Stop()
+
+	doc, err := iter.Next()
+	if err != nil {
+		if errors.Is(err, iterator.Done) {
+			return nil, nil
+		}
+
+		return nil, fmt.Errorf("failed to get latest measurement for device %s: %w", deviceID, err)
+	}
+
+	var m measurement
+	if err := doc.DataTo(&m); err != nil {
+		return nil, fmt.Errorf("failed to parse measurement document: %w", err)
+	}
+
+	return m.toMeasurementModel(), nil
+}
