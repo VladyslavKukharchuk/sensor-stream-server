@@ -54,7 +54,8 @@ void app_main(void) {
         if (!register_device(SERVER_URL, device_id, sizeof(device_id))) {
             ESP_LOGE(TAG, "CRITICAL ERROR: Registration failed. Device ID is mandatory.");
             ESP_LOGE(TAG, "System halted. Please check server connectivity.");
-            return; // Terminate app_main without starting sensor_task
+
+            return;
         }
     }
     
