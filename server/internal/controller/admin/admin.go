@@ -94,20 +94,19 @@ func (c *Controller) IndexPage(f *fiber.Ctx) error {
 
 func formatLastSeen(t time.Time) string {
 	duration := time.Since(t)
-	if duration < 0 {
-		return "Just now"
-	}
-	if duration.Seconds() < secondsInMinute {
-		return fmt.Sprintf("%d seconds ago", int(duration.Seconds()))
-	}
-	if duration.Minutes() < minutesInHour {
-		return fmt.Sprintf("%d minutes ago", int(duration.Minutes()))
-	}
-	if duration.Hours() < hoursInDay {
-		return fmt.Sprintf("%d hours ago", int(duration.Hours()))
-	}
 
-	return t.Format("2006-01-02 15:04")
+	switch {
+	case duration < 0:
+		return "Just now"
+	case duration.Seconds() < secondsInMinute:
+		return fmt.Sprintf("%d seconds ago", int(duration.Seconds()))
+	case duration.Minutes() < minutesInHour:
+		return fmt.Sprintf("%d minutes ago", int(duration.Minutes()))
+	case duration.Hours() < hoursInDay:
+		return fmt.Sprintf("%d hours ago", int(duration.Hours()))
+	default:
+		return t.Format("2006-01-02 15:04")
+	}
 }
 
 func (c *Controller) MeasurementsPage(f *fiber.Ctx) error {
