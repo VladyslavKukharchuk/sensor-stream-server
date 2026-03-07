@@ -11,6 +11,7 @@ import (
 type Repository interface {
 	Add(ctx context.Context, m *model.Measurement) error
 	List(ctx context.Context) ([]*model.Measurement, error)
+	GetLatestByDeviceID(ctx context.Context, deviceID string) (*model.Measurement, error)
 }
 
 type MeasurementService struct {
@@ -37,4 +38,13 @@ func (s *MeasurementService) List(ctx context.Context) ([]*model.Measurement, er
 	}
 
 	return measurements, nil
+}
+
+func (s *MeasurementService) GetLatestByDeviceID(ctx context.Context, deviceID string) (*model.Measurement, error) {
+	measurement, err := s.repository.GetLatestByDeviceID(ctx, deviceID)
+	if err != nil {
+		return nil, fmt.Errorf("getting latest measurement for device %s: %w", deviceID, err)
+	}
+
+	return measurement, nil
 }
