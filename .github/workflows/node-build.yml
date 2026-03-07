@@ -4,10 +4,6 @@ on:
   pull_request:
     paths:
       - "node/**"
-  push:
-    branches: ["main"]
-    paths:
-      - "node/**"
 
 jobs:
   build:

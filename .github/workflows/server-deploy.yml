@@ -1,9 +1,6 @@
 name: Deploy to Cloud Run
 
 on:
-  pull_request:
-    paths:
-      - "server/**"
   push:
     branches:
       - main
