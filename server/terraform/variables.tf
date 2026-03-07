@@ -27,3 +27,9 @@ variable "github_repository" {
   description = "The GitHub repository in format 'username/repo-name'"
   type        = string
 }
+
+variable "domain_name" {
+  description = "The custom domain name for the service"
+  type        = string
+  default     = ""
+}

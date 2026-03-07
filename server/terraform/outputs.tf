@@ -17,3 +17,7 @@ output "wif_provider_name" {
 output "wif_service_account_email" {
   value = module.wif.deployer_service_account_email
 }
+
+output "name_servers" {
+  value = var.domain_name != "" ? module.dns[0].name_servers : []
+}
