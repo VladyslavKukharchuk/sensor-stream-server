@@ -111,20 +111,19 @@ func (c *Controller) getDeviceDashboardItem(ctx context.Context, device *model.D
 
 func formatLastSeen(t time.Time) string {
 	duration := time.Since(t)
-	if duration < 0 {
-		return "Just now"
-	}
-	if duration.Seconds() < secondsInMinute {
-		return fmt.Sprintf("%d seconds ago", int(duration.Seconds()))
-	}
-	if duration.Minutes() < minutesInHour {
-		return fmt.Sprintf("%d minutes ago", int(duration.Minutes()))
-	}
-	if duration.Hours() < hoursInDay {
-		return fmt.Sprintf("%d hours ago", int(duration.Hours()))
-	}
 
-	return t.Format("2006-01-02 15:04")
+	switch {
+	case duration < 0:
+		return "Just now"
+	case duration.Seconds() < secondsInMinute:
+		return fmt.Sprintf("%d seconds ago", int(duration.Seconds()))
+	case duration.Minutes() < minutesInHour:
+		return fmt.Sprintf("%d minutes ago", int(duration.Minutes()))
+	case duration.Hours() < hoursInDay:
+		return fmt.Sprintf("%d hours ago", int(duration.Hours()))
+	default:
+		return t.Format("2006-01-02 15:04")
+	}
 }
 
 func (c *Controller) MeasurementsPage(f *fiber.Ctx) error {
@@ -159,6 +158,7 @@ func (c *Controller) DevicesPage(f *fiber.Ctx) error {
 		if err != nil {
 			return f.Status(fiber.StatusInternalServerError).SendString(err.Error())
 		}
+
 		deviceItems = append(deviceItems, item)
 	}
 
@@ -184,11 +184,13 @@ func (c *Controller) DevicePage(f *fiber.Ctx) error {
 	if err != nil {
 		return f.Status(http.StatusInternalServerError).SendString(err.Error())
 	}
+
 	if device == nil {
 		return f.Status(http.StatusNotFound).SendString("Device not found")
 	}
 
 	var since time.Time
+
 	switch period {
 	case "month":
 		since = time.Now().AddDate(0, -1, 0)

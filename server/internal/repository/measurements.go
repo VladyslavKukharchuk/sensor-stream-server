@@ -120,12 +120,14 @@ func (r *MeasurementRepository) GetByDeviceID(ctx context.Context, deviceID stri
 	defer iter.Stop()
 
 	var measurements []*model.Measurement
+
 	for {
 		doc, err := iter.Next()
 		if err != nil {
 			if errors.Is(err, iterator.Done) {
 				break
 			}
+
 			return nil, fmt.Errorf("failed to iterate measurements: %w", err)
 		}
 
@@ -133,6 +135,7 @@ func (r *MeasurementRepository) GetByDeviceID(ctx context.Context, deviceID stri
 		if err := doc.DataTo(&m); err != nil {
 			return nil, fmt.Errorf("failed to parse measurement document: %w", err)
 		}
+
 		measurements = append(measurements, m.toMeasurementModel())
 	}
 
