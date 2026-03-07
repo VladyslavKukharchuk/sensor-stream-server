@@ -49,6 +49,7 @@ type DeviceDashboardItem struct {
 	ID          string
 	Name        string
 	Location    string
+	MAC         string
 	Temperature float64
 	Humidity    float64
 	LastSeen    string
@@ -68,24 +69,9 @@ func (c *Controller) IndexPage(f *fiber.Ctx) error {
 	dashboardItems := make([]DeviceDashboardItem, 0, len(devices))
 
 	for _, device := range devices {
-		latest, err := c.ms.GetLatestByDeviceID(ctx, device.ID)
+		item, err := c.getDeviceDashboardItem(ctx, device)
 		if err != nil {
 			return f.Status(fiber.StatusInternalServerError).SendString(err.Error())
-		}
-
-		item := DeviceDashboardItem{
-			ID:       device.ID,
-			Name:     device.Name,
-			Location: device.Location,
-		}
-
-		if latest != nil {
-			item.Temperature = latest.Temperature
-			item.Humidity = latest.Humidity
-			item.UpdatedAt = latest.Timestamp
-			item.LastSeen = formatLastSeen(latest.Timestamp)
-		} else {
-			item.LastSeen = "Never"
 		}
 
 		dashboardItems = append(dashboardItems, item)
@@ -96,6 +82,31 @@ func (c *Controller) IndexPage(f *fiber.Ctx) error {
 			"Title":   "Dashboard",
 			"Devices": dashboardItems,
 		})
+}
+
+func (c *Controller) getDeviceDashboardItem(ctx context.Context, device *model.Device) (DeviceDashboardItem, error) {
+	latest, err := c.ms.GetLatestByDeviceID(ctx, device.ID)
+	if err != nil {
+		return DeviceDashboardItem{}, fmt.Errorf("getting latest measurement: %w", err)
+	}
+
+	item := DeviceDashboardItem{
+		ID:       device.ID,
+		Name:     device.Name,
+		Location: device.Location,
+		MAC:      device.MAC,
+	}
+
+	if latest != nil {
+		item.Temperature = latest.Temperature
+		item.Humidity = latest.Humidity
+		item.UpdatedAt = latest.Timestamp
+		item.LastSeen = formatLastSeen(latest.Timestamp)
+	} else {
+		item.LastSeen = "Never"
+	}
+
+	return item, nil
 }
 
 func formatLastSeen(t time.Time) string {
@@ -142,9 +153,18 @@ func (c *Controller) DevicesPage(f *fiber.Ctx) error {
 		return f.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
+	deviceItems := make([]DeviceDashboardItem, 0, len(devices))
+	for _, device := range devices {
+		item, err := c.getDeviceDashboardItem(ctx, device)
+		if err != nil {
+			return f.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		}
+		deviceItems = append(deviceItems, item)
+	}
+
 	return f.Render("devices", fiber.Map{
-		"Title":   "Devices",
-		"Devices": devices,
+		"Title":   "Device Management",
+		"Devices": deviceItems,
 	})
 }
 

@@ -1,11 +1,85 @@
 {{define "devices"}}
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{.Title}}</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}} - Sensor Stream</title>
     <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .device-table-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            overflow: hidden;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        th {
+            background: #f8f9fa;
+            padding: 16px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: #86868b;
+            font-weight: 600;
+            border-bottom: 1px solid #eee;
+        }
+        td {
+            padding: 16px;
+            border-bottom: 1px solid #f5f5f7;
+            vertical-align: middle;
+        }
+        tr:hover {
+            background-color: #fafafa;
+        }
+        .device-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .device-name {
+            font-weight: 600;
+            color: #1d1d1f;
+        }
+        .device-id-sub {
+            font-size: 0.75rem;
+            color: #86868b;
+            font-family: monospace;
+        }
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .status-online { background: #e8f5e9; color: #2e7d32; }
+        .status-offline { background: #f5f5f5; color: #757575; }
+        
+        .metric-pill {
+            display: inline-block;
+            padding: 2px 8px;
+            background: #f0f4f8;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-right: 5px;
+        }
+        .btn-manage {
+            padding: 6px 12px;
+            background: #007AFF;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            transition: opacity 0.2s;
+        }
+        .btn-manage:hover { opacity: 0.8; }
+    </style>
 </head>
 
 <body>
@@ -13,29 +87,62 @@
 {{template "header"}}
 
 <main>
-    <h2>Devices</h2>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>Device Management</h2>
+        <span style="color: #86868b; font-size: 0.9rem;">Total: {{len .Devices}} nodes</span>
+    </div>
 
-    <table>
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>MAC</th>
-            <th>CreatedAt</th>
-        </tr>
-        </thead>
-
-        <tbody>
-        {{range .Devices}}
-        <tr>
-            <td>
-                <a href="/admin/devices/{{.ID}}">{{.ID}}</a>
-            </td>
-            <td>{{.MAC}}</td>
-            <td>{{.CreatedAt.Format "2006-01-02 15:04:05"}}</td>
-        </tr>
-        {{end}}
-        </tbody>
-    </table>
+    <div class="device-table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Device</th>
+                    <th>Status</th>
+                    <th>Latest Data</th>
+                    <th>Last Seen</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Devices}}
+                <tr>
+                    <td>
+                        <div class="device-info">
+                            <span class="device-name">{{if .Name}}{{.Name}}{{else}}Unnamed Node{{end}}</span>
+                            <span class="device-id-sub">{{.ID}}</span>
+                            <span style="font-size: 0.7rem; color: #bbb;">MAC: {{.MAC}}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-pill {{if eq .LastSeen "Never"}}status-offline{{else}}status-online{{end}}">
+                            {{if eq .LastSeen "Never"}}Offline{{else}}Online{{end}}
+                        </span>
+                    </td>
+                    <td>
+                        {{if .Temperature}}
+                        <span class="metric-pill" style="color: #ff9500;">{{.Temperature}}°C</span>
+                        <span class="metric-pill" style="color: #007aff;">{{.Humidity}}%</span>
+                        {{else}}
+                        <span style="color: #ccc;">No data</span>
+                        {{end}}
+                    </td>
+                    <td style="font-size: 0.85rem; color: #666;">
+                        {{.LastSeen}}
+                    </td>
+                    <td>
+                        <a href="/admin/devices/{{.ID}}" class="btn-manage">Manage</a>
+                    </td>
+                </tr>
+                {{else}}
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 40px; color: #86868b;">
+                        No devices registered in the system.
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
 </main>
 
 {{template "footer"}}
