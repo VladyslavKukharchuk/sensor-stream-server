@@ -88,6 +88,9 @@ func (c *Controller) IndexPage(f *fiber.Ctx) error {
 
 func formatLastSeen(t time.Time) string {
 	duration := time.Since(t)
+	if duration < 0 {
+		return "Just now"
+	}
 	if duration.Seconds() < 60 {
 		return fmt.Sprintf("%d seconds ago", int(duration.Seconds()))
 	}
