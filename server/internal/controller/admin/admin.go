@@ -12,6 +12,12 @@ import (
 	"sensor-stream-server/internal/model"
 )
 
+const (
+	secondsInMinute = 60
+	minutesInHour   = 60
+	hoursInDay      = 24
+)
+
 type MeasurementService interface {
 	List(ctx context.Context) ([]*model.Measurement, error)
 	GetLatestByDeviceID(ctx context.Context, deviceID string) (*model.Measurement, error)
@@ -55,7 +61,7 @@ func (c *Controller) IndexPage(f *fiber.Ctx) error {
 		return f.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
-	var dashboardItems []DeviceDashboardItem
+	dashboardItems := make([]DeviceDashboardItem, 0, len(devices))
 
 	for _, device := range devices {
 		latest, err := c.ms.GetLatestByDeviceID(ctx, device.ID)
@@ -91,15 +97,16 @@ func formatLastSeen(t time.Time) string {
 	if duration < 0 {
 		return "Just now"
 	}
-	if duration.Seconds() < 60 {
+	if duration.Seconds() < secondsInMinute {
 		return fmt.Sprintf("%d seconds ago", int(duration.Seconds()))
 	}
-	if duration.Minutes() < 60 {
+	if duration.Minutes() < minutesInHour {
 		return fmt.Sprintf("%d minutes ago", int(duration.Minutes()))
 	}
-	if duration.Hours() < 24 {
+	if duration.Hours() < hoursInDay {
 		return fmt.Sprintf("%d hours ago", int(duration.Hours()))
 	}
+
 	return t.Format("2006-01-02 15:04")
 }
 
