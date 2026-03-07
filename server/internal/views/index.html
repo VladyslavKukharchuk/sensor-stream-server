@@ -81,8 +81,11 @@
     <div class="dashboard-grid">
         {{range .Devices}}
         <div class="device-card">
-            <h3>Sensor Node</h3>
-            <div class="device-id">ID: <a href="/admin/devices/{{.ID}}">{{.ID}}</a></div>
+            <h3>{{if .Name}}{{.Name}}{{else}}Sensor Node{{end}}</h3>
+            <div class="device-id">
+                {{if .Location}}<span style="color: #007AFF;">📍 {{.Location}}</span><br>{{end}}
+                ID: <a href="/admin/devices/{{.ID}}">{{.ID}}</a>
+            </div>
             
             <div class="metrics">
                 <div class="metric">

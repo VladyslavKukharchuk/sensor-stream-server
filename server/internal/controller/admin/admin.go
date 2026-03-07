@@ -27,6 +27,7 @@ type MeasurementService interface {
 type DevicesService interface {
 	List(ctx context.Context) ([]*model.Device, error)
 	GetByID(ctx context.Context, id string) (*model.Device, error)
+	Update(ctx context.Context, id, name, location string) error
 }
 
 type Controller struct {
@@ -46,6 +47,8 @@ func NewController(
 
 type DeviceDashboardItem struct {
 	ID          string
+	Name        string
+	Location    string
 	Temperature float64
 	Humidity    float64
 	LastSeen    string
@@ -71,7 +74,9 @@ func (c *Controller) IndexPage(f *fiber.Ctx) error {
 		}
 
 		item := DeviceDashboardItem{
-			ID: device.ID,
+			ID:       device.ID,
+			Name:     device.Name,
+			Location: device.Location,
 		}
 
 		if latest != nil {
@@ -95,19 +100,20 @@ func (c *Controller) IndexPage(f *fiber.Ctx) error {
 
 func formatLastSeen(t time.Time) string {
 	duration := time.Since(t)
-
-	switch {
-	case duration < 0:
+	if duration < 0 {
 		return "Just now"
-	case duration.Seconds() < secondsInMinute:
-		return fmt.Sprintf("%d seconds ago", int(duration.Seconds()))
-	case duration.Minutes() < minutesInHour:
-		return fmt.Sprintf("%d minutes ago", int(duration.Minutes()))
-	case duration.Hours() < hoursInDay:
-		return fmt.Sprintf("%d hours ago", int(duration.Hours()))
-	default:
-		return t.Format("2006-01-02 15:04")
 	}
+	if duration.Seconds() < secondsInMinute {
+		return fmt.Sprintf("%d seconds ago", int(duration.Seconds()))
+	}
+	if duration.Minutes() < minutesInHour {
+		return fmt.Sprintf("%d minutes ago", int(duration.Minutes()))
+	}
+	if duration.Hours() < hoursInDay {
+		return fmt.Sprintf("%d hours ago", int(duration.Hours()))
+	}
+
+	return t.Format("2006-01-02 15:04")
 }
 
 func (c *Controller) MeasurementsPage(f *fiber.Ctx) error {
@@ -177,7 +183,6 @@ func (c *Controller) DevicePage(f *fiber.Ctx) error {
 		return f.Status(http.StatusInternalServerError).SendString(err.Error())
 	}
 
-	// Prepare data for ApexCharts
 	tempData := make([]ChartData, 0, len(measurements))
 	humData := make([]ChartData, 0, len(measurements))
 
@@ -194,4 +199,19 @@ func (c *Controller) DevicePage(f *fiber.Ctx) error {
 		"HumData":      humData,
 		"ActivePeriod": period,
 	})
+}
+
+func (c *Controller) UpdateDevice(f *fiber.Ctx) error {
+	var (
+		ctx      = context.Background()
+		id       = f.Params("id")
+		name     = f.FormValue("name")
+		location = f.FormValue("location")
+	)
+
+	if err := c.ds.Update(ctx, id, name, location); err != nil {
+		return f.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+
+	return f.Redirect("/admin/devices/" + id)
 }
