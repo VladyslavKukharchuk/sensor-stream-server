@@ -1,8 +1,9 @@
 package auth
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"time"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type Controller struct{}
@@ -28,12 +29,22 @@ func (c *Controller) CreateSession(f *fiber.Ctx) error {
 		HTTPOnly: true,
 		Secure:   true,
 		SameSite: "Lax",
+		Path:     "/",
 	})
 
 	return f.SendStatus(fiber.StatusOK)
 }
 
 func (c *Controller) DestroySession(f *fiber.Ctx) error {
-	f.ClearCookie("session")
+	f.Cookie(&fiber.Cookie{
+		Name:     "session",
+		Value:    "",
+		Expires:  time.Now().Add(-24 * time.Hour),
+		HTTPOnly: true,
+		Secure:   true,
+		SameSite: "Lax",
+		Path:     "/",
+	})
+
 	return f.SendStatus(fiber.StatusOK)
 }
