@@ -24,25 +24,10 @@ import (
 func main() {
 	_ = godotenv.Load()
 
-	projectID := os.Getenv("FIRESTORE_PROJECT_ID")
-	if projectID == "" {
-		log.Fatal().Msg("FIRESTORE_PROJECT_ID is not set")
-	}
-
-	databaseID := os.Getenv("FIRESTORE_DATABASE_ID")
-	if databaseID == "" {
-		log.Fatal().Msg("FIRESTORE_DATABASE_ID is not set")
-	}
-
-	firebaseApiKey := os.Getenv("FIREBASE_API_KEY")
-	if firebaseApiKey == "" {
-		log.Fatal().Msg("FIREBASE_API_KEY is not set")
-	}
-
-	firebaseAuthDomain := os.Getenv("FIREBASE_AUTH_DOMAIN")
-	if firebaseAuthDomain == "" {
-		log.Fatal().Msg("FIREBASE_AUTH_DOMAIN is not set")
-	}
+	projectID := getEnvOrFatal("FIRESTORE_PROJECT_ID")
+	databaseID := getEnvOrFatal("FIRESTORE_DATABASE_ID")
+	firebaseApiKey := getEnvOrFatal("FIREBASE_API_KEY")
+	firebaseAuthDomain := getEnvOrFatal("FIREBASE_AUTH_DOMAIN")
 
 	engine := html.New("./internal/views", ".html")
 	app := fiber.New(fiber.Config{
@@ -85,4 +70,13 @@ func main() {
 	if err := app.Listen(":8080"); err != nil {
 		log.Fatal().Err(err).Msg("Failed to start server")
 	}
+}
+
+func getEnvOrFatal(key string) string {
+	val := os.Getenv(key)
+	if val == "" {
+		log.Fatal().Msgf("%s is not set", key)
+	}
+
+	return val
 }

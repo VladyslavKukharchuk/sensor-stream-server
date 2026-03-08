@@ -1,9 +1,14 @@
+//nolint:wrapcheck
 package auth
 
 import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+)
+
+const (
+	sessionDurationHours = 24
 )
 
 type Controller struct{}
@@ -25,7 +30,7 @@ func (c *Controller) CreateSession(f *fiber.Ctx) error {
 	f.Cookie(&fiber.Cookie{
 		Name:     "session",
 		Value:    req.IDToken,
-		Expires:  time.Now().Add(24 * time.Hour),
+		Expires:  time.Now().Add(sessionDurationHours * time.Hour),
 		HTTPOnly: true,
 		Secure:   true,
 		SameSite: "Lax",
@@ -39,7 +44,7 @@ func (c *Controller) DestroySession(f *fiber.Ctx) error {
 	f.Cookie(&fiber.Cookie{
 		Name:     "session",
 		Value:    "",
-		Expires:  time.Now().Add(-24 * time.Hour),
+		Expires:  time.Now().Add(-sessionDurationHours * time.Hour),
 		HTTPOnly: true,
 		Secure:   true,
 		SameSite: "Lax",

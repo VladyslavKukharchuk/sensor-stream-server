@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/gofiber/fiber/v2"
+
 	"sensor-stream-server/internal/controller/auth"
 )
 

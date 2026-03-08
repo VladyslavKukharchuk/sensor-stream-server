@@ -10,6 +10,7 @@ import (
 
 func NewFirebaseAuth(ctx context.Context, projectID string) (*auth.Client, error) {
 	config := &firebase.Config{ProjectID: projectID}
+
 	app, err := firebase.NewApp(ctx, config)
 	if err != nil {
 		return nil, fmt.Errorf("error initializing firebase app: %w", err)
