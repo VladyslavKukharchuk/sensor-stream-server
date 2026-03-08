@@ -1,11 +1,25 @@
 {{define "header"}}
 <header>
     <h1>Sensor Stream</h1>
-    
-    <nav>
+
+    <nav style="display: flex; align-items: center; gap: 20px;">
         <a href="/admin">Dashboard</a>
         <a href="/admin/measurements">Measurements</a>
         <a href="/admin/devices">Devices</a>
+        <button id="logout-btn" style="background: none; border: 1px solid rgba(255,255,255,0.3); color: white; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 14px;">Logout</button>
     </nav>
 </header>
+
+<script>
+    document.getElementById('logout-btn')?.addEventListener('click', async () => {
+        try {
+            const response = await fetch('/auth/session', { method: 'DELETE' });
+            if (response.ok) {
+                window.location.href = '/admin/login';
+            }
+        } catch (error) {
+            console.error('Logout failed:', error);
+        }
+    });
+</script>
 {{end}}
