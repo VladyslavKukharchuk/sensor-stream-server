@@ -6,9 +6,7 @@ import (
 	"sensor-stream-server/internal/controller/admin"
 )
 
-func RegisterAdminRoutes(app *fiber.App, adminController *admin.Controller) {
-	r := app.Group("/admin")
-
+func RegisterAdminRoutes(r fiber.Router, adminController *admin.Controller) {
 	r.Get("/", adminController.IndexPage)
 	r.Get("/measurements", adminController.MeasurementsPage)
 	r.Get("/devices", adminController.DevicesPage)
