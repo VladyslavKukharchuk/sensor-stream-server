@@ -11,13 +11,13 @@ func NewAuthMiddleware(authClient *auth.Client) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		sessionCookie := c.Cookies("session")
 		if sessionCookie == "" {
-			return c.Redirect("/login")
+			return c.Redirect("/admin/login")
 		}
 
 		// Verify the ID token from the cookie
 		token, err := authClient.VerifyIDToken(context.Background(), sessionCookie)
 		if err != nil {
-			return c.Redirect("/login")
+			return c.Redirect("/admin/login")
 		}
 
 		// Store user info in context for controllers

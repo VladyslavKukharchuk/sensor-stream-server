@@ -19,13 +19,12 @@ func Setup(
 	ac *admin.Controller,
 	auc *authController.Controller,
 ) {
-	app.Get("/login", ac.LoginPage)
-
 	authGroup := app.Group("/auth")
 	RegisterAuthRoutes(authGroup, auc)
 
 	RegisterMeasurementRoutes(app, mc, dc)
 
-	adminGroup := app.Group("/admin", middleware.NewAuthMiddleware(authClient))
-	RegisterAdminRoutes(adminGroup, ac)
+	adminGroup := app.Group("/admin")
+	authMiddleware := middleware.NewAuthMiddleware(authClient)
+	RegisterAdminRoutes(adminGroup, ac, authMiddleware)
 }
