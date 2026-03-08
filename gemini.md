@@ -65,7 +65,14 @@ The `main/main.c` file acts as an **orchestrator**. Its responsibilities are:
 
 ## 5. API Endpoints
 
-### 5.1. Sensor Node API (`/api/v1`)
+### 5.1. Authentication API (`/auth`)
+Endpoints for user session management via Firebase ID tokens.
+
+- `POST /auth/session`: Create a session cookie from a Firebase ID token.
+    - **Payload**: `{ "idToken": "string" }`
+- `DELETE /auth/session`: Destroy the current session cookie (Logout).
+
+### 5.2. Sensor Node API (`/api/v1`)
 Endpoints used by ESP32 hardware nodes to transmit data.
 
 - `POST /api/v1/measurements`: Submit new sensor readings.
