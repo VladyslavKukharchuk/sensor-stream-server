@@ -53,3 +53,14 @@ module "wif" {
   depends_on = [module.services, module.cloud_run]
 }
 
+module "dns" {
+  count        = var.domain_name != "" ? 1 : 0
+  source       = "./modules/dns"
+  project_id   = var.project_id
+  domain_name  = var.domain_name
+  service_name = var.service_name
+  region       = var.region
+
+  depends_on = [module.cloud_run]
+}
+
