@@ -24,7 +24,6 @@ import (
 func main() {
 	_ = godotenv.Load()
 
-	// Environment validation
 	projectID := os.Getenv("FIRESTORE_PROJECT_ID")
 	if projectID == "" {
 		log.Fatal().Msg("FIRESTORE_PROJECT_ID is not set")
@@ -66,15 +65,12 @@ func main() {
 		log.Fatal().Err(err).Msg("Failed to create firebase auth client")
 	}
 
-	// Repositories
 	measurementRepo := repository.NewMeasurementRepository(firestoreClient)
 	devicesRepo := repository.NewDevicesRepository(firestoreClient)
 
-	// Services
 	measurementService := service.NewMeasurementService(measurementRepo)
 	devicesService := service.NewDevicesService(devicesRepo)
 
-	// Controllers
 	mc := measurements.NewController(measurementService)
 	dc := devices.NewController(devicesService)
 	ac := admin.NewController(measurementService, devicesService)
@@ -84,7 +80,6 @@ func main() {
 		FirebaseProjectId:  projectID,
 	})
 
-	// Setup all routes in one place
 	routes.Setup(app, authClient, mc, dc, ac, auc)
 
 	if err := app.Listen(":8080"); err != nil {
