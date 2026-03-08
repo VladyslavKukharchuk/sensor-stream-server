@@ -18,6 +18,12 @@ const (
 	hoursInDay      = 24
 )
 
+type Config struct {
+	FirebaseApiKey     string
+	FirebaseAuthDomain string
+	FirebaseProjectId  string
+}
+
 type MeasurementService interface {
 	List(ctx context.Context) ([]*model.Measurement, error)
 	GetLatestByDeviceID(ctx context.Context, deviceID string) (*model.Measurement, error)
@@ -31,18 +37,29 @@ type DevicesService interface {
 }
 
 type Controller struct {
-	ms MeasurementService
-	ds DevicesService
+	ms     MeasurementService
+	ds     DevicesService
+	config Config
 }
 
 func NewController(
 	ms MeasurementService,
 	ds DevicesService,
+	config Config,
 ) *Controller {
 	return &Controller{
-		ms: ms,
-		ds: ds,
+		ms:     ms,
+		ds:     ds,
+		config: config,
 	}
+}
+
+func (c *Controller) LoginPage(f *fiber.Ctx) error {
+	return f.Render("login", fiber.Map{
+		"FirebaseApiKey":     c.config.FirebaseApiKey,
+		"FirebaseAuthDomain": c.config.FirebaseAuthDomain,
+		"FirebaseProjectId":  c.config.FirebaseProjectId,
+	})
 }
 
 type DeviceDashboardItem struct {

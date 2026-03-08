@@ -73,12 +73,12 @@ func main() {
 
 	mc := measurements.NewController(measurementService)
 	dc := devices.NewController(devicesService)
-	ac := admin.NewController(measurementService, devicesService)
-	auc := auth.NewController(auth.Config{
+	ac := admin.NewController(measurementService, devicesService, admin.Config{
 		FirebaseApiKey:     firebaseApiKey,
 		FirebaseAuthDomain: firebaseAuthDomain,
 		FirebaseProjectId:  projectID,
 	})
+	auc := auth.NewController()
 
 	routes.Setup(app, authClient, mc, dc, ac, auc)
 

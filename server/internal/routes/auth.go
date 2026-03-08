@@ -6,7 +6,6 @@ import (
 )
 
 func RegisterAuthRoutes(r fiber.Router, authController *auth.Controller) {
-	r.Get("/login", authController.LoginPage)
-	r.Post("/auth/session", authController.CreateSession)
-	r.Get("/logout", authController.Logout)
+	r.Post("/session", authController.CreateSession)
+	r.Delete("/session", authController.DestroySession)
 }
