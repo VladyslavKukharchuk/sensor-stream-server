@@ -65,7 +65,14 @@ The `main/main.c` file acts as an **orchestrator**. Its responsibilities are:
 
 ## 5. API Endpoints
 
-### 5.1. Sensor Node API (`/api/v1`)
+### 5.1. Authentication API (`/auth`)
+Endpoints for user session management via Firebase ID tokens.
+
+- `POST /auth/session`: Create a session cookie from a Firebase ID token.
+    - **Payload**: `{ "idToken": "string" }`
+- `DELETE /auth/session`: Destroy the current session cookie (Logout).
+
+### 5.2. Sensor Node API (`/api/v1`)
 Endpoints used by ESP32 hardware nodes to transmit data.
 
 - `POST /api/v1/measurements`: Submit new sensor readings.
@@ -76,7 +83,14 @@ Endpoints used by ESP32 hardware nodes to transmit data.
 ### 5.2. Admin Interface (`/admin`)
 Server-side rendered (SSR) pages for data management and visualization.
 
-- `GET /admin/`: Dashboard overview.
-- `GET /admin/measurements`: Tabular view of historical data.
-- `GET /admin/devices`: List of all registered sensor nodes.
-- `GET /admin/devices/:id`: Detailed statistics and info for a specific node.
+- `GET /admin/`: Dashboard overview showing the latest readings from all active nodes.
+- `GET /admin/measurements`: Tabular view of all raw historical data.
+- `GET /admin/devices`: Management list of all registered sensor nodes.
+- `GET /admin/devices/:id`: Detailed statistics and interactive charts for a specific node.
+    - **Query Params**: `?period=day|week|month` (default: `day`).
+- `POST /admin/devices/:id`: Update device metadata (Friendly Name and Location).
+    - **Form Data**: `name` (string), `location` (string).
+
+### 5.3. Static Content (`/`)
+- Serves frontend assets (CSS, JS, images) from the `./public` directory.
+- ApexCharts is loaded via CDN for interactive data visualization.

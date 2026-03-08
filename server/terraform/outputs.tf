@@ -18,6 +18,14 @@ output "wif_service_account_email" {
   value = module.wif.deployer_service_account_email
 }
 
+output "firebase_api_key" {
+  value = module.firebase.api_key
+}
+
+output "firebase_auth_domain" {
+  value = module.firebase.auth_domain
+}
+
 output "name_servers" {
   value = var.domain_name != "" ? module.dns[0].name_servers : []
 }

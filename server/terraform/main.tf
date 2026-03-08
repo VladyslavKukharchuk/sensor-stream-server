@@ -6,10 +6,19 @@ terraform {
       source  = "hashicorp/google"
       version = "~> 5.0"
     }
+    google-beta = {
+      source  = "hashicorp/google-beta"
+      version = "~> 5.0"
+    }
   }
 }
 
 provider "google" {
+  project = var.project_id
+  region  = var.region
+}
+
+provider "google-beta" {
   project = var.project_id
   region  = var.region
 }
@@ -30,6 +39,13 @@ module "database" {
   source      = "./modules/database"
   region      = var.region
   database_id = var.firestore_database_id
+
+  depends_on = [module.services]
+}
+
+module "firebase" {
+  source     = "./modules/firebase"
+  project_id = var.project_id
 
   depends_on = [module.services]
 }

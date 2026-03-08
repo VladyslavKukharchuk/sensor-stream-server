@@ -22,3 +22,13 @@ resource "google_project_service" "dns_api" {
   service            = "dns.googleapis.com"
   disable_on_destroy = false
 }
+
+resource "google_project_service" "firebase_api" {
+  service            = "firebase.googleapis.com"
+  disable_on_destroy = false
+}
+
+resource "google_project_service" "identity_toolkit_api" {
+  service            = "identitytoolkit.googleapis.com"
+  disable_on_destroy = false
+}

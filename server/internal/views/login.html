@@ -1,0 +1,77 @@
+{{define "login"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sensor Stream</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        body { background: #f5f7fa; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; font-family: -apple-system, sans-serif; }
+        .login-card { background: white; padding: 40px; border-radius: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; width: 100%; max-width: 400px; }
+        h1 { font-weight: 700; margin-bottom: 10px; color: #1d1d1f; }
+        p { color: #86868b; margin-bottom: 30px; }
+        .google-btn {
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            width: 100%; padding: 12px; border: 1px solid #dcdcdc; border-radius: 12px;
+            background: white; cursor: pointer; font-size: 1rem; font-weight: 500;
+            transition: background 0.2s;
+        }
+        .google-btn:hover { background: #f9f9f9; }
+        .google-icon { width: 20px; height: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="login-card">
+    <h1>Welcome</h1>
+    <p>Sign in to manage your smart home sensors</p>
+    
+    <button class="google-btn" id="google-login">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="google-icon" alt="Google">
+        Continue with Google
+    </button>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+    // ПЕРЕД ПОЧАТКОМ: Ви повинні отримати ці дані в Firebase Console
+    const firebaseConfig = {
+        apiKey: "{{.FirebaseApiKey}}",
+        authDomain: "{{.FirebaseAuthDomain}}",
+        projectId: "{{.FirebaseProjectId}}"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    document.getElementById('google-login').addEventListener('click', async () => {
+        try {
+            const result = await signInWithPopup(auth, provider);
+            const token = await result.user.getIdToken();
+            
+            // Відправляємо токен на сервер для встановлення сесії
+            const response = await fetch('/auth/session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idToken: token })
+            });
+
+            if (response.ok) {
+                window.location.href = '/admin/';
+            } else {
+                alert('Authentication failed on server side');
+            }
+        } catch (error) {
+            console.error("Auth Error:", error);
+            alert("Google Login failed: " + error.message);
+        }
+    });
+</script>
+
+</body>
+</html>
+{{end}}
