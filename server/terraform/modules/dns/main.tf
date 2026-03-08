@@ -35,11 +35,11 @@ resource "google_dns_record_set" "cloud_run_records" {
 
   managed_zone = google_dns_managed_zone.zone.name
 
-  name         = each.value.name == "@" ? google_dns_managed_zone.zone.dns_name : "${each.value.name}.${google_dns_managed_zone.zone.dns_name}"
-  
-  type         = each.value.type
-  ttl          = 300
-  rrdatas      = [each.value.rrdata]
+  name = each.value.name == "@" ? google_dns_managed_zone.zone.dns_name : "${each.value.name}.${google_dns_managed_zone.zone.dns_name}"
+
+  type    = each.value.type
+  ttl     = 300
+  rrdatas = [each.value.rrdata]
 }
 
 output "name_servers" {
