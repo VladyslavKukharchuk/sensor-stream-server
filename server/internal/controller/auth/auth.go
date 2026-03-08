@@ -1,23 +1,30 @@
 package auth
 
 import (
-	"os"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-type Controller struct{}
+type Config struct {
+	FirebaseApiKey     string
+	FirebaseAuthDomain string
+	FirebaseProjectId  string
+}
 
-func NewController() *Controller {
-	return &Controller{}
+type Controller struct {
+	config Config
+}
+
+func NewController(config Config) *Controller {
+	return &Controller{config: config}
 }
 
 func (c *Controller) LoginPage(f *fiber.Ctx) error {
 	return f.Render("login", fiber.Map{
-		"FirebaseApiKey":     os.Getenv("FIREBASE_API_KEY"),
-		"FirebaseAuthDomain": os.Getenv("FIREBASE_AUTH_DOMAIN"),
-		"FirebaseProjectId":  os.Getenv("FIRESTORE_PROJECT_ID"),
+		"FirebaseApiKey":     c.config.FirebaseApiKey,
+		"FirebaseAuthDomain": c.config.FirebaseAuthDomain,
+		"FirebaseProjectId":  c.config.FirebaseProjectId,
 	})
 }
 

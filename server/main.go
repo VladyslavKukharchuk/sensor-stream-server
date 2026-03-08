@@ -25,8 +25,27 @@ import (
 func main() {
 	_ = godotenv.Load()
 
-	engine := html.New("./internal/views", ".html")
+	projectID := os.Getenv("FIRESTORE_PROJECT_ID")
+	if projectID == "" {
+		log.Fatal().Msg("FIRESTORE_PROJECT_ID is not set")
+	}
 
+	databaseID := os.Getenv("FIRESTORE_DATABASE_ID")
+	if databaseID == "" {
+		log.Fatal().Msg("FIRESTORE_DATABASE_ID is not set")
+	}
+
+	firebaseApiKey := os.Getenv("FIREBASE_API_KEY")
+	if firebaseApiKey == "" {
+		log.Fatal().Msg("FIREBASE_API_KEY is not set")
+	}
+
+	firebaseAuthDomain := os.Getenv("FIREBASE_AUTH_DOMAIN")
+	if firebaseAuthDomain == "" {
+		log.Fatal().Msg("FIREBASE_AUTH_DOMAIN is not set")
+	}
+
+	engine := html.New("./internal/views", ".html")
 	app := fiber.New(fiber.Config{
 		Views: engine,
 	})
@@ -34,9 +53,6 @@ func main() {
 	app.Static("/", "./public")
 	app.Use(logger.New())
 	app.Use(cors.New())
-
-	projectID := os.Getenv("FIRESTORE_PROJECT_ID")
-	databaseID := os.Getenv("FIRESTORE_DATABASE_ID")
 
 	ctx := context.Background()
 
@@ -59,8 +75,15 @@ func main() {
 	devicesController := devices.NewController(devicesService)
 
 	adminController := admin.NewController(measurementService, devicesService)
-	authController := auth.NewController()
 
+	authConfig := auth.Config{
+		FirebaseApiKey:     firebaseApiKey,
+		FirebaseAuthDomain: firebaseAuthDomain,
+		FirebaseProjectId:  projectID,
+	}
+	authController := auth.NewController(authConfig)
+
+	// Routes
 	app.Get("/login", authController.LoginPage)
 	app.Post("/auth/session", authController.CreateSession)
 	app.Get("/logout", authController.Logout)
