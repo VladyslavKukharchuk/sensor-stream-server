@@ -16,7 +16,6 @@ import (
 	"sensor-stream-server/internal/controller/devices"
 	"sensor-stream-server/internal/controller/measurements"
 	"sensor-stream-server/internal/db"
-	"sensor-stream-server/internal/middleware"
 	"sensor-stream-server/internal/repository"
 	"sensor-stream-server/internal/routes"
 	"sensor-stream-server/internal/service"
@@ -25,6 +24,7 @@ import (
 func main() {
 	_ = godotenv.Load()
 
+	// Environment validation
 	projectID := os.Getenv("FIRESTORE_PROJECT_ID")
 	if projectID == "" {
 		log.Fatal().Msg("FIRESTORE_PROJECT_ID is not set")
@@ -66,32 +66,26 @@ func main() {
 		log.Fatal().Err(err).Msg("Failed to create firebase auth client")
 	}
 
+	// Repositories
 	measurementRepo := repository.NewMeasurementRepository(firestoreClient)
-	measurementService := service.NewMeasurementService(measurementRepo)
-	measurementController := measurements.NewController(measurementService)
-
 	devicesRepo := repository.NewDevicesRepository(firestoreClient)
+
+	// Services
+	measurementService := service.NewMeasurementService(measurementRepo)
 	devicesService := service.NewDevicesService(devicesRepo)
-	devicesController := devices.NewController(devicesService)
 
-	adminController := admin.NewController(measurementService, devicesService)
-
-	authConfig := auth.Config{
+	// Controllers
+	mc := measurements.NewController(measurementService)
+	dc := devices.NewController(devicesService)
+	ac := admin.NewController(measurementService, devicesService)
+	auc := auth.NewController(auth.Config{
 		FirebaseApiKey:     firebaseApiKey,
 		FirebaseAuthDomain: firebaseAuthDomain,
 		FirebaseProjectId:  projectID,
-	}
-	authController := auth.NewController(authConfig)
+	})
 
-	// Routes
-	app.Get("/login", authController.LoginPage)
-	app.Post("/auth/session", authController.CreateSession)
-	app.Get("/logout", authController.Logout)
-
-	routes.RegisterMeasurementRoutes(app, measurementController, devicesController)
-
-	adminGroup := app.Group("/admin", middleware.NewAuthMiddleware(authClient))
-	routes.RegisterAdminRoutes(adminGroup, adminController)
+	// Setup all routes in one place
+	routes.Setup(app, authClient, mc, dc, ac, auc)
 
 	if err := app.Listen(":8080"); err != nil {
 		log.Fatal().Err(err).Msg("Failed to start server")
