@@ -6,11 +6,14 @@ NODE_DIR=node
 
 help:
 	@echo "Available commands:"
-	@echo "  make server-lint    - Run golangci-lint for the server"
-	@echo "  make server-run     - Run the Go server"
-	@echo "  make node-compile   - Compile the ESP-IDF project"
-	@echo "  make node-upload    - Upload firmware via idf.py flash"
-	@echo "  make node-monitor   - Open serial monitor via idf.py monitor"
+	@echo "  make server-lint        - Run golangci-lint for the server"
+	@echo "  make server-lint-fix    - Run golangci-lint and fix issues"
+	@echo "  make terraform-lint     - Run terraform fmt check"
+	@echo "  make terraform-lint-fix - Run terraform fmt fix"
+	@echo "  make server-run         - Run the Go server"
+	@echo "  make node-compile       - Compile the ESP-IDF project"
+	@echo "  make node-upload        - Upload firmware via idf.py flash"
+	@echo "  make node-monitor       - Open serial monitor via idf.py monitor"
 
 # Server
 server-lint:
@@ -21,6 +24,12 @@ server-lint-fix:
 
 server-run:
 	cd $(SERVER_DIR) && go run main.go
+
+terraform-lint:
+	cd $(SERVER_DIR)/terraform && terraform fmt -recursive -check
+
+terraform-lint-fix:
+	cd $(SERVER_DIR)/terraform && terraform fmt -recursive
 
 IDF_EXPORT = . $(HOME)/esp/esp-idf/export.sh
 
