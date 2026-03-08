@@ -19,7 +19,10 @@ func Setup(
 	ac *admin.Controller,
 	auc *authController.Controller,
 ) {
-	RegisterAuthRoutes(app, auc)
+	app.Get("/login", ac.LoginPage)
+
+	authGroup := app.Group("/auth")
+	RegisterAuthRoutes(authGroup, auc)
 
 	RegisterMeasurementRoutes(app, mc, dc)
 

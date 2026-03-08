@@ -16,3 +16,5 @@ This document defines the coding standards and architectural rules for the Go-ba
 - Follow standard Go conventions (`go fmt`).
 - Avoid "magic numbers"; use constants for time durations, limits, etc.
 - Pre-allocate slices with `make([]T, 0, length)` if the size is known to optimize memory usage.
+- **Redundant Comments**: DO NOT add comments in obvious places (e.g., "// Controllers", "// Initialize", "// Routes"). Code should be self-documenting.
+- **Code Style**: Prefer concise structures like `switch` statements over long `if-else` chains where it improves readability.
