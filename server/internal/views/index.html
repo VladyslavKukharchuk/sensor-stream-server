@@ -145,7 +145,7 @@
 {{template "header"}}
 
 <main>
-    <h2>Dashboard</h2>
+    <h2>Devices</h2>
 
     <div class="dashboard-grid">
         {{range .Devices}}
@@ -155,6 +155,7 @@
                 {{if .Location}}
                 <div class="location-tag">📍 {{.Location}}</div>
                 {{end}}
+                <div style="font-size: 0.7rem; color: #bbb; margin-top: 5px;">MAC: {{.MAC}}</div>
             </div>
             
             <div class="metrics-row">

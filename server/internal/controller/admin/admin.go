@@ -142,32 +142,6 @@ func formatLastSeen(t time.Time) string {
 	}
 }
 
-func (c *Controller) DevicesPage(f *fiber.Ctx) error {
-	var (
-		ctx = context.Background()
-	)
-
-	devices, err := c.ds.List(ctx)
-	if err != nil {
-		return f.Status(fiber.StatusInternalServerError).SendString(err.Error())
-	}
-
-	deviceItems := make([]DeviceDashboardItem, 0, len(devices))
-	for _, device := range devices {
-		item, err := c.getDeviceDashboardItem(ctx, device)
-		if err != nil {
-			return f.Status(fiber.StatusInternalServerError).SendString(err.Error())
-		}
-
-		deviceItems = append(deviceItems, item)
-	}
-
-	return f.Render("devices", fiber.Map{
-		"Title":   "Device Management",
-		"Devices": deviceItems,
-	})
-}
-
 type ChartData struct {
 	Timestamp string  `json:"x"`
 	Value     float64 `json:"y"`
