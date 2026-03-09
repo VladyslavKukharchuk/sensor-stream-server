@@ -10,8 +10,6 @@ func RegisterAdminRoutes(r fiber.Router, adminController *admin.Controller, auth
 	r.Get("/login", adminController.LoginPage)
 
 	r.Get("/", auth, adminController.IndexPage)
-	r.Get("/measurements", auth, adminController.MeasurementsPage)
-	r.Get("/devices", auth, adminController.DevicesPage)
 	r.Get("/devices/:id", auth, adminController.DevicePage)
 	r.Post("/devices/:id", auth, adminController.UpdateDevice)
 }
