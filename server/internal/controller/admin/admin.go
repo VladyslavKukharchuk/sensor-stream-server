@@ -95,7 +95,7 @@ func (c *Controller) IndexPage(f *fiber.Ctx) error {
 
 	return f.Render("index",
 		fiber.Map{
-			"Title":   "Dashboard",
+			"Title":   "Devices",
 			"Devices": dashboardItems,
 		})
 }
