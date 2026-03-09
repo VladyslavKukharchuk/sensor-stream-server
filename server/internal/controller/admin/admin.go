@@ -25,7 +25,6 @@ type Config struct {
 }
 
 type MeasurementService interface {
-	List(ctx context.Context) ([]*model.Measurement, error)
 	GetLatestByDeviceID(ctx context.Context, deviceID string) (*model.Measurement, error)
 	GetByDeviceID(ctx context.Context, deviceID string, since time.Time) ([]*model.Measurement, error)
 }
@@ -141,22 +140,6 @@ func formatLastSeen(t time.Time) string {
 	default:
 		return t.Format("2006-01-02 15:04")
 	}
-}
-
-func (c *Controller) MeasurementsPage(f *fiber.Ctx) error {
-	var (
-		ctx = context.Background()
-	)
-
-	measurements, err := c.ms.List(ctx)
-	if err != nil {
-		return f.Status(fiber.StatusInternalServerError).SendString(err.Error())
-	}
-
-	return f.Render("measurements", fiber.Map{
-		"Title":        "Measurements",
-		"Measurements": measurements,
-	})
 }
 
 func (c *Controller) DevicesPage(f *fiber.Ctx) error {
