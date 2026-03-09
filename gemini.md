@@ -83,9 +83,7 @@ Endpoints used by ESP32 hardware nodes to transmit data.
 ### 5.2. Admin Interface (`/admin`)
 Server-side rendered (SSR) pages for data management and visualization.
 
-- `GET /admin/`: Dashboard overview showing the latest readings from all active nodes.
-- `GET /admin/measurements`: Tabular view of all raw historical data.
-- `GET /admin/devices`: Management list of all registered sensor nodes.
+- `GET /admin/`: Main dashboard showing interactive cards for all registered devices with their latest sensor readings and online status.
 - `GET /admin/devices/:id`: Detailed statistics and interactive charts for a specific node.
     - **Query Params**: `?period=day|week|month` (default: `day`).
 - `POST /admin/devices/:id`: Update device metadata (Friendly Name and Location).
