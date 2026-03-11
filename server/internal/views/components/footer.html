@@ -9,5 +9,9 @@
 </style>
 
 <footer>
-    © 2025 Sensor Stream
+    © <span id="year"></span> Sensor Stream
 </footer>
+
+<script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+</script>
