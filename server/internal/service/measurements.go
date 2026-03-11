@@ -64,6 +64,8 @@ func (s *MeasurementService) GetAggregatedByDeviceID(ctx context.Context, device
 		return measurements, nil
 	}
 
+	const roundingPrecision = 10.0
+
 	type aggData struct {
 		tempSum float64
 		humSum  float64
@@ -78,6 +80,7 @@ func (s *MeasurementService) GetAggregatedByDeviceID(ctx context.Context, device
 		if _, ok := buckets[bucketTime]; !ok {
 			buckets[bucketTime] = &aggData{}
 		}
+
 		buckets[bucketTime].tempSum += m.Temperature
 		buckets[bucketTime].humSum += m.Humidity
 		buckets[bucketTime].count++
@@ -88,8 +91,8 @@ func (s *MeasurementService) GetAggregatedByDeviceID(ctx context.Context, device
 		result = append(result, &model.Measurement{
 			DeviceID:    deviceID,
 			Timestamp:   t,
-			Temperature: float64(int(data.tempSum/float64(data.count)*10)) / 10,
-			Humidity:    float64(int(data.humSum/float64(data.count)*10)) / 10,
+			Temperature: float64(int(data.tempSum/float64(data.count)*roundingPrecision)) / roundingPrecision,
+			Humidity:    float64(int(data.humSum/float64(data.count)*roundingPrecision)) / roundingPrecision,
 		})
 	}
 

@@ -16,6 +16,9 @@ const (
 	secondsInMinute = 60
 	minutesInHour   = 60
 	hoursInDay      = 24
+
+	aggregationIntervalMonth = 24
+	aggregationIntervalWeek  = 6
 )
 
 type Config struct {
@@ -164,16 +167,18 @@ func (c *Controller) DevicePage(f *fiber.Ctx) error {
 		return f.Status(http.StatusNotFound).SendString("Device not found")
 	}
 
-	var since time.Time
-	var interval time.Duration
+	var (
+		since    time.Time
+		interval time.Duration
+	)
 
 	switch period {
 	case "month":
 		since = time.Now().AddDate(0, -1, 0)
-		interval = 24 * time.Hour
+		interval = aggregationIntervalMonth * time.Hour
 	case "week":
 		since = time.Now().AddDate(0, 0, -7)
-		interval = 6 * time.Hour
+		interval = aggregationIntervalWeek * time.Hour
 	default:
 		since = time.Now().AddDate(0, 0, -1)
 		interval = 1 * time.Hour
