@@ -1,0 +1,35 @@
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<style>
+    .controls { margin: 20px 0; display: flex; gap: 10px; }
+    .btn.active { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+    #chart { background: white; padding: 20px; border-radius: var(--radius-md); box-shadow: var(--shadow-md); margin-top: 20px; min-height: 400px; }
+</style>
+
+<div class="controls">
+    <a href="?period=day" class="btn {{if eq .ActivePeriod "day"}}active{{end}}">Last 24h</a>
+    <a href="?period=week" class="btn {{if eq .ActivePeriod "week"}}active{{end}}">Last Week</a>
+    <a href="?period=month" class="btn {{if eq .ActivePeriod "month"}}active{{end}}">Last Month</a>
+</div>
+
+<div id="chart"></div>
+
+<script>
+    const tempData = {{.TempData}};
+    const humData = {{.HumData}};
+
+    const options = {
+        series: [{ name: 'Temperature', data: tempData }, { name: 'Humidity', data: humData }],
+        chart: { height: 450, type: 'area', toolbar: { show: true } },
+        colors: ['#FF4560', '#008FFB'],
+        stroke: { curve: 'smooth', width: 3 },
+        xaxis: { type: 'datetime', labels: { datetimeUTC: false } },
+        yaxis: [
+            { title: { text: 'Temperature (°C)' }, labels: { formatter: (val) => val.toFixed(1) + '°C' } },
+            { opposite: true, title: { text: 'Humidity (%)' }, labels: { formatter: (val) => val.toFixed(0) + '%' } }
+        ],
+        tooltip: { x: { format: 'dd MMM HH:mm' }, shared: true }
+    };
+
+    const chart = new ApexCharts(document.querySelector("#chart"), options);
+    chart.render();
+</script>

@@ -1,0 +1,21 @@
+<style>
+    .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .info-item { background: #f0f4f8; padding: 15px; border-radius: var(--radius-sm); }
+    .info-label { font-size: 0.8rem; color: var(--color-text-sub); text-transform: uppercase; }
+    .info-value { font-size: 1.1rem; font-weight: bold; color: var(--color-text-main); margin-top: 5px; }
+</style>
+
+<div class="info-grid">
+    <div class="info-item">
+        <div class="info-label">Location</div>
+        <div class="info-value">{{if .Location}}{{.Location}}{{else}}Unknown{{end}}</div>
+    </div>
+    <div class="info-item">
+        <div class="info-label">MAC Address</div>
+        <div class="info-value">{{.MAC}}</div>
+    </div>
+    <div class="info-item">
+        <div class="info-label">ID</div>
+        <div class="info-value" style="font-size: 0.8rem;">{{.ID}}</div>
+    </div>
+</div>

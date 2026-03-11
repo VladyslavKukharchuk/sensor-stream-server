@@ -1,82 +1,10 @@
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-
-<style>
-    .controls { margin: 20px 0; display: flex; gap: 10px; }
-    .btn.active { background: var(--color-primary); color: white; border-color: var(--color-primary); }
-    
-    #chart { background: white; padding: 20px; border-radius: var(--radius-md); box-shadow: var(--shadow-md); margin-top: 20px; min-height: 400px; }
-    
-    .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
-    .info-item { background: #f0f4f8; padding: 15px; border-radius: var(--radius-sm); }
-    .info-label { font-size: 0.8rem; color: var(--color-text-sub); text-transform: uppercase; }
-    .info-value { font-size: 1.1rem; font-weight: bold; color: var(--color-text-main); margin-top: 5px; }
-
-    .settings-card { background: #fff; padding: 20px; border-radius: var(--radius-md); border: 1px solid #eee; margin-top: 30px; }
-    .form-group { margin-bottom: 15px; }
-    .form-group label { display: block; font-size: 0.9rem; color: var(--color-text-sub); margin-bottom: 5px; }
-    .form-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: var(--radius-sm); box-sizing: border-box; }
-</style>
-
 <div style="display: flex; justify-content: space-between; align-items: center;">
     <h2>{{if .Device.Name}}{{.Device.Name}}{{else}}Device Details{{end}}</h2>
     <a href="/admin/" class="btn">← Devices</a>
 </div>
 
-<div class="info-grid">
-    <div class="info-item">
-        <div class="info-label">Location</div>
-        <div class="info-value">{{if .Device.Location}}{{.Device.Location}}{{else}}Unknown{{end}}</div>
-    </div>
-    <div class="info-item">
-        <div class="info-label">MAC Address</div>
-        <div class="info-value">{{.Device.MAC}}</div>
-    </div>
-    <div class="info-item">
-        <div class="info-label">ID</div>
-        <div class="info-value" style="font-size: 0.8rem;">{{.Device.ID}}</div>
-    </div>
-</div>
+{{template "components/device_info" .Device}}
 
-<div class="controls">
-    <a href="?period=day" class="btn {{if eq .ActivePeriod "day"}}active{{end}}">Last 24h</a>
-    <a href="?period=week" class="btn {{if eq .ActivePeriod "week"}}active{{end}}">Last Week</a>
-    <a href="?period=month" class="btn {{if eq .ActivePeriod "month"}}active{{end}}">Last Month</a>
-</div>
+{{template "components/device_chart" .}}
 
-<div id="chart"></div>
-
-<section class="settings-card">
-    <h3>Device Settings</h3>
-    <form action="/admin/devices/{{.Device.ID}}" method="POST">
-        <div class="form-group">
-            <label for="name">Name</label>
-            <input type="text" id="name" name="name" value="{{.Device.Name}}" placeholder="e.g. Living Room Sensor">
-        </div>
-        <div class="form-group">
-            <label for="location">Location / Room</label>
-            <input type="text" id="location" name="location" value="{{.Device.Location}}" placeholder="e.g. Kitchen, Greenhouse">
-        </div>
-        <button type="submit" class="btn btn-primary">Save Changes</button>
-    </form>
-</section>
-
-<script>
-    const tempData = {{.TempData}};
-    const humData = {{.HumData}};
-
-    const options = {
-        series: [{ name: 'Temperature', data: tempData }, { name: 'Humidity', data: humData }],
-        chart: { height: 450, type: 'area', toolbar: { show: true } },
-        colors: ['#FF4560', '#008FFB'],
-        stroke: { curve: 'smooth', width: 3 },
-        xaxis: { type: 'datetime', labels: { datetimeUTC: false } },
-        yaxis: [
-            { title: { text: 'Temperature (°C)' }, labels: { formatter: (val) => val.toFixed(1) + '°C' } },
-            { opposite: true, title: { text: 'Humidity (%)' }, labels: { formatter: (val) => val.toFixed(0) + '%' } }
-        ],
-        tooltip: { x: { format: 'dd MMM HH:mm' }, shared: true }
-    };
-
-    const chart = new ApexCharts(document.querySelector("#chart"), options);
-    chart.render();
-</script>
+{{template "components/device_settings" .Device}}
