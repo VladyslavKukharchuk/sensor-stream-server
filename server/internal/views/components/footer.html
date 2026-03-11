@@ -1,0 +1,17 @@
+<style>
+    footer {
+        text-align: center;
+        padding: 15px;
+        margin-top: auto;
+        color: var(--color-text-sub);
+        font-size: 14px;
+    }
+</style>
+
+<footer>
+    © <span id="year"></span> Sensor Stream
+</footer>
+
+<script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+</script>

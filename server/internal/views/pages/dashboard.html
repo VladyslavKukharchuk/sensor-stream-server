@@ -1,0 +1,20 @@
+<style>
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: var(--spacing-lg);
+        padding: 20px 0;
+    }
+</style>
+
+<h2>Devices</h2>
+
+<div class="dashboard-grid">
+    {{range .Devices}}
+        {{template "components/device_card" .}}
+    {{else}}
+    <div style="grid-column: 1/-1; text-align: center; padding: 60px; background: white; border-radius: 20px;">
+        <p style="color: var(--color-text-sub); font-size: 1.1rem;">No devices found.</p>
+    </div>
+    {{end}}
+</div>

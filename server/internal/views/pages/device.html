@@ -1,0 +1,10 @@
+<div style="display: flex; justify-content: space-between; align-items: center;">
+    <h2>{{if .Device.Name}}{{.Device.Name}}{{else}}Device Details{{end}}</h2>
+    <a href="/admin/" class="btn">← Devices</a>
+</div>
+
+{{template "components/device_info" .Device}}
+
+{{template "components/device_chart" .}}
+
+{{template "components/device_settings" .Device}}
