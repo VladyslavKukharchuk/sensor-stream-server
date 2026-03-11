@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="/css/styles.css">
     <style>
         body { background: var(--color-bg); display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .login-card { background: white; padding: 40px; border-radius: var(--radius-xl); box-shadow: var(--shadow-md); text-align: center; width: 100%; max-width: 400px; }
+        .login-card { background: white; padding: 20px; border-radius: var(--radius-xl); box-shadow: var(--shadow-md); text-align: center; }
         h1 { font-weight: 700; margin-bottom: 10px; color: var(--color-text-main); }
         p { color: var(--color-text-sub); margin-bottom: 30px; }
         .google-btn {
@@ -22,6 +22,8 @@
     </style>
 </head>
 <body>
+
+{{template "components/loader" .}}
 
 <div class="login-card">
     <h1>Welcome</h1>
@@ -50,6 +52,9 @@
     document.getElementById('google-login').addEventListener('click', async () => {
         try {
             const result = await signInWithPopup(auth, provider);
+
+            Loader.show("Authenticating...");
+
             const token = await result.user.getIdToken();
             
             const response = await fetch('/auth/session', {
@@ -61,11 +66,15 @@
             if (response.ok) {
                 window.location.href = '/admin/';
             } else {
+                Loader.hide();
                 alert('Authentication failed on server side');
             }
         } catch (error) {
+            Loader.hide();
             console.error("Auth Error:", error);
-            alert("Google Login failed: " + error.message);
+            if (error.code !== 'auth/popup-closed-by-user') {
+                alert("Google Login failed: " + error.message);
+            }
         }
     });
 </script>

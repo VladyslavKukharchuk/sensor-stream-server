@@ -2,7 +2,7 @@
 <style>
     .controls { margin: 20px 0; display: flex; gap: 10px; }
     .btn.active { background: var(--color-primary); color: white; border-color: var(--color-primary); }
-    #chart { background: white; padding: 20px; border-radius: var(--radius-md); box-shadow: var(--shadow-md); min-height: 400px; }
+    #chart { background: white; padding: 20px; border-radius: var(--radius-md); box-shadow: var(--shadow-md); min-height: 400px; pointer-events: none; }
     
     @media (max-width: 600px) {
         #chart {
@@ -32,6 +32,11 @@
     const options = {
         series: [{ name: 'Temperature', data: tempData }, { name: 'Humidity', data: humData }],
         chart: { height: 450, type: 'area', toolbar: { show: false } },
+        tooltip: { enabled: false },
+        states: {
+            hover: { filter: { type: 'none' } },
+            active: { filter: { type: 'none' } }
+        },
         colors: ['#FF4560', '#008FFB'],
         stroke: { curve: 'smooth', width: 3 },
         xaxis: { type: 'datetime', labels: { datetimeUTC: false } },
