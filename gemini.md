@@ -86,6 +86,10 @@ Server-side rendered (SSR) pages for data management and visualization.
 - `GET /admin/`: Main dashboard showing interactive cards for all registered devices with their latest sensor readings and online status.
 - `GET /admin/devices/:id`: Detailed statistics and interactive charts for a specific node.
     - **Query Params**: `?period=day|week|month` (default: `day`).
+    - **Data Processing**: Automatically applies server-side aggregation (averaging) based on the period:
+        - `day`: 1-hour interval.
+        - `week`: 6-hour interval.
+        - `month`: 24-hour interval.
 - `POST /admin/devices/:id`: Update device metadata (Friendly Name and Location).
     - **Form Data**: `name` (string), `location` (string).
 
