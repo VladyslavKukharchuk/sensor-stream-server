@@ -44,3 +44,8 @@ The project uses Fiber's HTML template engine and follows a modular, component-b
 ### 4.5. Clean JavaScript
 - **Principle**: Prefer Vanilla JS for simple interactive elements (e.g., year updates, logout handling).
 - **Rule**: Component-specific JS should be placed directly in the component file to maintain isolation.
+
+## 5. Quality Assurance (Mandatory)
+- **Rule**: Every code change in the `server/` directory MUST be followed by a successful `make server-lint` run.
+- **Rule**: If `make server-lint` fails, the issue must be resolved before the task is considered complete.
+- **Rule**: Use the `server-linter` skill to maintain quality standards.

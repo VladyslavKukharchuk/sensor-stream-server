@@ -18,6 +18,12 @@ main {
     flex: 1;
 }
 
+@media (max-width: 600px) {
+    main {
+        padding: var(--spacing-md) var(--spacing-md);
+    }
+}
+
 h2 {
     font-size: 22px;
     margin-bottom: var(--spacing-lg);

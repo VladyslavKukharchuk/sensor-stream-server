@@ -16,6 +16,9 @@ const (
 	secondsInMinute = 60
 	minutesInHour   = 60
 	hoursInDay      = 24
+
+	aggregationIntervalMonth = 24
+	aggregationIntervalWeek  = 6
 )
 
 type Config struct {
@@ -27,6 +30,7 @@ type Config struct {
 type MeasurementService interface {
 	GetLatestByDeviceID(ctx context.Context, deviceID string) (*model.Measurement, error)
 	GetByDeviceID(ctx context.Context, deviceID string, since time.Time) ([]*model.Measurement, error)
+	GetAggregatedByDeviceID(ctx context.Context, deviceID string, since time.Time, interval time.Duration) ([]*model.Measurement, error)
 }
 
 type DevicesService interface {
@@ -163,18 +167,24 @@ func (c *Controller) DevicePage(f *fiber.Ctx) error {
 		return f.Status(http.StatusNotFound).SendString("Device not found")
 	}
 
-	var since time.Time
+	var (
+		since    time.Time
+		interval time.Duration
+	)
 
 	switch period {
 	case "month":
 		since = time.Now().AddDate(0, -1, 0)
+		interval = aggregationIntervalMonth * time.Hour
 	case "week":
 		since = time.Now().AddDate(0, 0, -7)
+		interval = aggregationIntervalWeek * time.Hour
 	default:
 		since = time.Now().AddDate(0, 0, -1)
+		interval = 1 * time.Hour
 	}
 
-	measurements, err := c.ms.GetByDeviceID(ctx, id, since)
+	measurements, err := c.ms.GetAggregatedByDeviceID(ctx, id, since, interval)
 	if err != nil {
 		return f.Status(http.StatusInternalServerError).SendString(err.Error())
 	}

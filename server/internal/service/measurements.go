@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"sort"
 	"time"
 
 	"sensor-stream-server/internal/model"
@@ -47,4 +48,58 @@ func (s *MeasurementService) GetByDeviceID(ctx context.Context, deviceID string,
 	}
 
 	return measurements, nil
+}
+
+func (s *MeasurementService) GetAggregatedByDeviceID(ctx context.Context, deviceID string, since time.Time, interval time.Duration) ([]*model.Measurement, error) {
+	measurements, err := s.repository.GetByDeviceID(ctx, deviceID, since)
+	if err != nil {
+		return nil, fmt.Errorf("getting measurements for device %s: %w", deviceID, err)
+	}
+
+	if len(measurements) == 0 {
+		return nil, nil
+	}
+
+	if interval <= 0 {
+		return measurements, nil
+	}
+
+	const roundingPrecision = 10.0
+
+	type aggData struct {
+		tempSum float64
+		humSum  float64
+		count   int
+	}
+
+	buckets := make(map[time.Time]*aggData)
+
+	for _, m := range measurements {
+		// Group by interval window
+		bucketTime := m.Timestamp.Truncate(interval)
+		if _, ok := buckets[bucketTime]; !ok {
+			buckets[bucketTime] = &aggData{}
+		}
+
+		buckets[bucketTime].tempSum += m.Temperature
+		buckets[bucketTime].humSum += m.Humidity
+		buckets[bucketTime].count++
+	}
+
+	result := make([]*model.Measurement, 0, len(buckets))
+	for t, data := range buckets {
+		result = append(result, &model.Measurement{
+			DeviceID:    deviceID,
+			Timestamp:   t,
+			Temperature: float64(int(data.tempSum/float64(data.count)*roundingPrecision)) / roundingPrecision,
+			Humidity:    float64(int(data.humSum/float64(data.count)*roundingPrecision)) / roundingPrecision,
+		})
+	}
+
+	// Sorting by timestamp is important for charts
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].Timestamp.Before(result[j].Timestamp)
+	})
+
+	return result, nil
 }
