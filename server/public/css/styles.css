@@ -13,20 +13,6 @@ body {
     flex-direction: column;
 }
 
-header {
-    background: var(--color-header-bg);
-    color: #fff;
-    padding: 15px 25px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-header h1 {
-    margin: 0;
-    font-size: 20px;
-}
-
 main {
     padding: var(--spacing-lg) 40px;
     flex: 1;
@@ -35,14 +21,6 @@ main {
 h2 {
     font-size: 22px;
     margin-bottom: var(--spacing-lg);
-}
-
-footer {
-    text-align: center;
-    padding: 15px;
-    margin-top: auto;
-    color: var(--color-text-sub);
-    font-size: 14px;
 }
 
 /* Common Components */
