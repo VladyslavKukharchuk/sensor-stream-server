@@ -188,7 +188,7 @@ func (c *Controller) DevicePage(f *fiber.Ctx) error {
 		humData = append(humData, ChartData{Timestamp: ts, Value: m.Humidity})
 	}
 
-	return f.Render("pages/device_detail", fiber.Map{
+	return f.Render("pages/device", fiber.Map{
 		"Title":        "Device Details",
 		"Device":       device,
 		"TempData":     tempData,
