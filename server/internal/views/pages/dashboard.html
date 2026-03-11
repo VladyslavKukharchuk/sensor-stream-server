@@ -125,7 +125,7 @@
 
 <div class="dashboard-grid">
     {{range .Devices}}
-        {{template "partials/device_card" .}}
+        {{template "components/device_card" .}}
     {{else}}
     <div style="grid-column: 1/-1; text-align: center; padding: 60px; background: white; border-radius: 20px;">
         <p style="color: var(--color-text-sub); font-size: 1.1rem;">No devices found.</p>
