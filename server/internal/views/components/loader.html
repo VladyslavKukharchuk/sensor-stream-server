@@ -1,0 +1,61 @@
+<style>
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.7);
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+        backdrop-filter: blur(2px);
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid var(--color-primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 15px;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+        color: var(--color-text-main);
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+</style>
+
+<div id="global-loader" class="loading-overlay">
+    <div class="spinner"></div>
+    <div id="loader-text" class="loading-text">Loading...</div>
+</div>
+
+<script>
+    const Loader = {
+        show: (text = "Loading...") => {
+            const loader = document.getElementById('global-loader');
+            const loaderText = document.getElementById('loader-text');
+            if (loader && loaderText) {
+                loaderText.textContent = text;
+                loader.style.display = 'flex';
+            }
+        },
+        hide: () => {
+            const loader = document.getElementById('global-loader');
+            if (loader) {
+                loader.style.display = 'none';
+            }
+        }
+    };
+</script>
