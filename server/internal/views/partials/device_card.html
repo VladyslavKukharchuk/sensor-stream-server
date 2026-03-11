@@ -1,0 +1,36 @@
+<a href="/admin/devices/{{.ID}}" class="device-card card">
+    <div class="card-header">
+        <h3>{{if .Name}}{{.Name}}{{else}}Sensor Node{{end}}</h3>
+        {{if .Location}}
+        <div class="location-tag">📍 {{.Location}}</div>
+        {{end}}
+        <div class="mac-address">MAC: {{.MAC}}</div>
+    </div>
+    
+    <div class="metrics-row">
+        <div class="metric-box temp">
+            <span class="metric-label">Temperature</span>
+            <span class="metric-val" style="color: var(--color-temp);">
+                {{if .Temperature}}{{.Temperature}}°{{else}}--{{end}}
+            </span>
+        </div>
+        <div class="metric-box hum">
+            <span class="metric-label">Humidity</span>
+            <span class="metric-val" style="color: var(--color-hum);">
+                {{if .Humidity}}{{.Humidity}}%{{else}}--{{end}}
+            </span>
+        </div>
+    </div>
+
+    <div class="card-footer">
+        <div class="status-badge">
+            <div class="dot {{if eq .LastSeen "Never"}}offline{{else}}online{{end}}"></div>
+            {{if eq .LastSeen "Never"}}Offline{{else}}Online{{end}}
+        </div>
+        <div class="device-id-small">ID: {{.ID}}</div>
+    </div>
+    
+    <div class="updated-at">
+        Updated: {{.LastSeen}}
+    </div>
+</a>

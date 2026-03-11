@@ -54,7 +54,7 @@ func NewController(
 }
 
 func (c *Controller) LoginPage(f *fiber.Ctx) error {
-	return f.Render("login", fiber.Map{
+	return f.Render("pages/login", fiber.Map{
 		"FirebaseApiKey":     c.config.FirebaseApiKey,
 		"FirebaseAuthDomain": c.config.FirebaseAuthDomain,
 		"FirebaseProjectId":  c.config.FirebaseProjectId,
@@ -93,11 +93,11 @@ func (c *Controller) IndexPage(f *fiber.Ctx) error {
 		dashboardItems = append(dashboardItems, item)
 	}
 
-	return f.Render("index",
+	return f.Render("pages/dashboard",
 		fiber.Map{
 			"Title":   "Devices",
 			"Devices": dashboardItems,
-		})
+		}, "layouts/base")
 }
 
 func (c *Controller) getDeviceDashboardItem(ctx context.Context, device *model.Device) (DeviceDashboardItem, error) {
@@ -188,13 +188,13 @@ func (c *Controller) DevicePage(f *fiber.Ctx) error {
 		humData = append(humData, ChartData{Timestamp: ts, Value: m.Humidity})
 	}
 
-	return f.Render("device", fiber.Map{
+	return f.Render("pages/device_detail", fiber.Map{
 		"Title":        "Device Details",
 		"Device":       device,
 		"TempData":     tempData,
 		"HumData":      humData,
 		"ActivePeriod": period,
-	})
+	}, "layouts/base")
 }
 
 func (c *Controller) UpdateDevice(f *fiber.Ctx) error {

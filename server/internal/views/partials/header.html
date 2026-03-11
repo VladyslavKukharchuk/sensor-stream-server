@@ -1,11 +1,10 @@
-{{define "header"}}
 <header>
     <a href="/admin" style="text-decoration: none; color: inherit;">
         <h1 style="margin: 0;">Sensor Stream</h1>
     </a>
 
     <nav style="display: flex; align-items: center; gap: 20px;">
-        <button id="logout-btn" style="background: none; border: 1px solid rgba(255,255,255,0.3); color: white; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 14px;">Logout</button>
+        <button id="logout-btn" class="btn" style="background: none; border: 1px solid rgba(255,255,255,0.3); color: white;">Logout</button>
     </nav>
 </header>
 
@@ -21,5 +20,3 @@
         }
     });
 </script>
-
-{{end}}
