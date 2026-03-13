@@ -2,16 +2,15 @@
 package auth
 
 import (
-	"context"
 	"fmt"
 	"time"
 
 	"firebase.google.com/go/v4/auth"
 	"github.com/gofiber/fiber/v2"
+	"github.com/rs/zerolog/log"
 )
 
 const (
-	// Firebase session cookies can last up to 14 days.
 	sessionDurationDays = 14
 	hoursInDay          = 24
 )
@@ -39,9 +38,11 @@ func (c *Controller) CreateSession(f *fiber.Ctx) error {
 	// Create a Firebase session cookie
 	expiresIn := time.Duration(sessionDurationDays) * hoursInDay * time.Hour
 
-	sessionCookie, err := c.authClient.SessionCookie(context.Background(), req.IDToken, expiresIn)
+	sessionCookie, err := c.authClient.SessionCookie(f.Context(), req.IDToken, expiresIn)
 	if err != nil {
-		return f.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": fmt.Sprintf("failed to create session cookie: %v", err)})
+		log.Error().Err(err).Msg("Failed to create Firebase session cookie")
+
+		return f.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": fmt.Sprintf("failed to create session: %v", err)})
 	}
 
 	f.Cookie(&fiber.Cookie{
