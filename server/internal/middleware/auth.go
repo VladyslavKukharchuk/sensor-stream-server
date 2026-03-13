@@ -14,11 +14,13 @@ func NewAuthMiddleware(authClient *auth.Client) fiber.Handler {
 			return c.Redirect("/admin/login")
 		}
 
-		token, err := authClient.VerifySessionCookieAndCheckRevoked(context.Background(), sessionCookie)
+		// Verify the ID token from the cookie
+		token, err := authClient.VerifyIDToken(context.Background(), sessionCookie)
 		if err != nil {
 			return c.Redirect("/admin/login")
 		}
 
+		// Store user info in context for controllers
 		c.Locals("user", token)
 
 		return c.Next()
