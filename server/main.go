@@ -63,7 +63,7 @@ func main() {
 		FirebaseAuthDomain: firebaseAuthDomain,
 		FirebaseProjectId:  projectID,
 	})
-	auc := auth.NewController()
+	auc := auth.NewController(authClient)
 
 	routes.Setup(app, authClient, mc, dc, ac, auc)
 
