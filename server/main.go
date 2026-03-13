@@ -5,8 +5,10 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/gofiber/template/html/v2"
 	"github.com/joho/godotenv"
 	"github.com/rs/zerolog/log"
@@ -34,8 +36,15 @@ func main() {
 		Views: engine,
 	})
 
-	app.Use(logger.New())
+	app.Use(requestid.New())
+	app.Use(logger.New(logger.Config{
+		Format: "[${time}] ${id} ${status} - ${latency} ${method} ${path}\n",
+	}))
+	app.Use(compress.New(compress.Config{
+		Level: compress.LevelBestSpeed,
+	}))
 	app.Use(cors.New())
+
 	app.Static("/", "./public")
 
 	ctx := context.Background()
@@ -63,7 +72,7 @@ func main() {
 		FirebaseAuthDomain: firebaseAuthDomain,
 		FirebaseProjectId:  projectID,
 	})
-	auc := auth.NewController()
+	auc := auth.NewController(authClient)
 
 	routes.Setup(app, authClient, mc, dc, ac, auc)
 

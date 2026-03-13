@@ -14,8 +14,7 @@ func NewAuthMiddleware(authClient *auth.Client) fiber.Handler {
 			return c.Redirect("/admin/login")
 		}
 
-		// Verify the ID token from the cookie
-		token, err := authClient.VerifyIDToken(context.Background(), sessionCookie)
+		token, err := authClient.VerifySessionCookie(context.Background(), sessionCookie)
 		if err != nil {
 			return c.Redirect("/admin/login")
 		}
