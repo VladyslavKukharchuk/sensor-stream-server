@@ -8,8 +8,11 @@ import (
 	"firebase.google.com/go/v4/auth"
 )
 
-func NewFirebaseAuth(ctx context.Context, projectID string) (*auth.Client, error) {
-	config := &firebase.Config{ProjectID: projectID}
+func NewFirebaseAuth(ctx context.Context, projectID string, serviceAccountID string) (*auth.Client, error) {
+	config := &firebase.Config{
+		ProjectID:        projectID,
+		ServiceAccountID: serviceAccountID,
+	}
 
 	app, err := firebase.NewApp(ctx, config)
 	if err != nil {
