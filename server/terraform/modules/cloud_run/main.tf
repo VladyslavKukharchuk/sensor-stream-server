@@ -11,11 +11,18 @@ resource "google_project_iam_member" "firestore_user" {
   member  = "serviceAccount:${google_service_account.cloud_run_sa.email}"
 }
 
-# IAM role for signing blobs (required for Firebase Session Cookies)
-resource "google_project_iam_member" "token_creator" {
+# IAM role for Firebase Auth administration (required to verify tokens)
+resource "google_project_iam_member" "firebase_auth_admin" {
   project = var.project_id
-  role    = "roles/iam.serviceAccountTokenCreator"
+  role    = "roles/firebaseauth.admin"
   member  = "serviceAccount:${google_service_account.cloud_run_sa.email}"
+}
+
+# Allow the Cloud Run service account to impersonate the Firebase Auth service account
+resource "google_service_account_iam_member" "cloud_run_impersonation" {
+  service_account_id = var.firebase_service_account_name
+  role               = "roles/iam.serviceAccountTokenCreator"
+  member             = "serviceAccount:${google_service_account.cloud_run_sa.email}"
 }
 
 # Cloud Run Service
@@ -49,7 +56,7 @@ resource "google_cloud_run_v2_service" "default" {
       }
       env {
         name  = "FIREBASE_SERVICE_ACCOUNT_ID"
-        value = google_service_account.cloud_run_sa.email
+        value = var.firebase_service_account_email
       }
     }
   }

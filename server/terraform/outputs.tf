@@ -26,6 +26,10 @@ output "firebase_auth_domain" {
   value = module.firebase.auth_domain
 }
 
+output "firebase_service_account_email" {
+  value = module.firebase.service_account_email
+}
+
 output "name_servers" {
   value = var.domain_name != "" ? module.dns[0].name_servers : []
 }
