@@ -13,3 +13,11 @@ variable "service_name" {
 variable "database_id" {
   type = string
 }
+
+variable "firebase_api_key" {
+  type = string
+}
+
+variable "firebase_auth_domain" {
+  type = string
+}

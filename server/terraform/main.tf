@@ -51,11 +51,13 @@ module "firebase" {
 }
 
 module "cloud_run" {
-  source       = "./modules/cloud_run"
-  project_id   = var.project_id
-  region       = var.region
-  service_name = var.service_name
-  database_id  = var.firestore_database_id
+  source               = "./modules/cloud_run"
+  project_id           = var.project_id
+  region               = var.region
+  service_name         = var.service_name
+  database_id          = var.firestore_database_id
+  firebase_api_key     = module.firebase.api_key
+  firebase_auth_domain = module.firebase.auth_domain
 
   depends_on = [module.services, module.database]
 }

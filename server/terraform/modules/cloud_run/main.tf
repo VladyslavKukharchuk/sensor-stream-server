@@ -39,6 +39,18 @@ resource "google_cloud_run_v2_service" "default" {
         name  = "FIRESTORE_DATABASE_ID"
         value = var.database_id
       }
+      env {
+        name  = "FIREBASE_API_KEY"
+        value = var.firebase_api_key
+      }
+      env {
+        name  = "FIREBASE_AUTH_DOMAIN"
+        value = var.firebase_auth_domain
+      }
+      env {
+        name  = "FIREBASE_SERVICE_ACCOUNT_ID"
+        value = google_service_account.cloud_run_sa.email
+      }
     }
   }
 

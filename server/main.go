@@ -30,6 +30,7 @@ func main() {
 	databaseID := getEnvOrFatal("FIRESTORE_DATABASE_ID")
 	firebaseApiKey := getEnvOrFatal("FIREBASE_API_KEY")
 	firebaseAuthDomain := getEnvOrFatal("FIREBASE_AUTH_DOMAIN")
+	firebaseServiceAccountID := getEnvOrFatal("FIREBASE_SERVICE_ACCOUNT_ID")
 
 	engine := html.New("./internal/views", ".html")
 	app := fiber.New(fiber.Config{
@@ -54,7 +55,7 @@ func main() {
 		log.Fatal().Err(err).Msg("Failed to create firestore client")
 	}
 
-	authClient, err := db.NewFirebaseAuth(ctx, projectID)
+	authClient, err := db.NewFirebaseAuth(ctx, projectID, firebaseServiceAccountID)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to create firebase auth client")
 	}
