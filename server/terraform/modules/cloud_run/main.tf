@@ -11,6 +11,13 @@ resource "google_project_iam_member" "firestore_user" {
   member  = "serviceAccount:${google_service_account.cloud_run_sa.email}"
 }
 
+# IAM role for signing blobs (required for Firebase Session Cookies)
+resource "google_project_iam_member" "token_creator" {
+  project = var.project_id
+  role    = "roles/iam.serviceAccountTokenCreator"
+  member  = "serviceAccount:${google_service_account.cloud_run_sa.email}"
+}
+
 # Cloud Run Service
 resource "google_cloud_run_v2_service" "default" {
   name     = var.service_name
