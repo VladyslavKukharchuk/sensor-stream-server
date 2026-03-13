@@ -35,7 +35,6 @@ func (c *Controller) CreateSession(f *fiber.Ctx) error {
 		return f.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid request"})
 	}
 
-	// Create a Firebase session cookie
 	expiresIn := time.Duration(sessionDurationDays) * hoursInDay * time.Hour
 
 	sessionCookie, err := c.authClient.SessionCookie(f.Context(), req.IDToken, expiresIn)
