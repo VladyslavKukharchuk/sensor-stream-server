@@ -21,3 +21,11 @@ variable "firebase_api_key" {
 variable "firebase_auth_domain" {
   type = string
 }
+
+variable "firebase_service_account_email" {
+  type = string
+}
+
+variable "firebase_service_account_name" {
+  type = string
+}
