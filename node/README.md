@@ -20,16 +20,6 @@ This project demonstrates reading temperature and humidity from a **DHT22 (AM230
 - GND --> GND DHT22
 - GPIO4 --> DATA DHT22 (through 4.7-10kΩ resistor to 3.3V)
 
-## 📚 Libraries Used
-
-- [DHT sensor library by Adafruit](https://github.com/adafruit/DHT-sensor-library)
-- [Adafruit Unified Sensor](https://github.com/adafruit/Adafruit_Sensor)
-- WiFi.h (built-in)
-- HTTPClient.h (built-in)
-- time.h (built-in)
-
-> Install via **Arduino IDE → Tools → Manage Libraries…** if missing.
-
 ## ⚡ Features
 
 - Reads temperature and humidity from DHT22 sensor.
@@ -45,69 +35,32 @@ This project demonstrates reading temperature and humidity from a **DHT22 (AM230
 
 ### 🔧 Setup
 
-1. Встановлення залежностей через Homebrew
-   Відкрийте термінал і встановіть необхідні системні пакети:
-   ```
-   brew install cmake ninja dfu-util python3
-   ``` 
-2. Завантаження ESP-IDF SDK
-    ```
-    mkdir -p ~/esp
-    cd ~/esp
-    git clone -b v5.3 --recursive https://github.com/espressif/esp-idf.git
-    ```
+Install the PlatformIO IDE extension in VS Code and open the `node` directory.
+Run **PlatformIO: Build** for the `esp32-c6` environment. PlatformIO installs the
+pinned Espressif32 7.1.3 platform (ESP-IDF 6.1) and managed `cjson` component
+automatically; no separate ESP-IDF installation or Arduino libraries are needed.
 
-3. Інсталяція інструментів
-   Запустіть скрипт інсталяції, який завантажить необхідні тулчейни:
-   ```
-    cd ~/esp/esp-idf
-   ./install.sh esp32c6
-   ```
+The project uses `sdkconfig.defaults` and `partitions.csv` for its 8 MB flash
+configuration and a 2 MB application partition. Before flashing, configure
+`main/secrets.h` from `main/secrets.template.h`.
 
-4. Налаштування змінних оточення (export)
-   Щоб команда `idf.py` стала доступною в терміналі, потрібно виконати:
+For this personal project, TLS server-certificate verification is disabled so
+the node can connect even if its CA bundle or clock is not set up. HTTPS traffic
+remains encrypted, but the node cannot verify the server's identity and is
+vulnerable to man-in-the-middle attacks. Do not use this setting for sensitive
+data or production deployments.
 
-    ```
-    ~/esp/esp-idf/export.sh
-    ```
-    Порада: Щоб не вводити це кожного разу, додайте аліас у свій ~/.zshrc:
+### Build, flash, and monitor
 
-    ```
-    echo 'alias get_idf=". $HOME/esp/esp-idf/export.sh"' >> ~/.zshrc
-    source ~/.zshrc
-    ```
-    Тепер ви зможете просто написати get_idf у новому терміналі, і все налаштується автоматично.
-
-Build
-```
-idf.py set-target esp32c6
-```
-
-Upload
-```
-idf.py build flash
-```
-
-Monitor
-```
-idf.py monitor
-```
-
-Exit monitor
-```
-Ctrl + ]
-```
-
-1. Copy secrets.template.h to `secrets.h` and fill in your credentials:
-2. Install the required libraries via Arduino IDE.
-3. Upload the sketch to your ESP32-C6-Zero.
+- Build with **PlatformIO: Build**.
+- Connect the board and flash with **PlatformIO: Upload**. Select the correct
+  serial port if PlatformIO does not detect it automatically.
+- Open **PlatformIO: Monitor** at 115200 baud. Press `Ctrl+]` to exit.
 
 ### ⚡ Notes
 
 - Ensure the pull-up resistor is installed between DATA and VCC; otherwise, readings may fail.
 - If nothing appears in the Serial Monitor:
   - Check the correct COM port
-  - Select board: ESP32C6 Dev Module
   - Press RST on the board
   - Ensure baud rate = 115200
-  - Ensure "USB CDC On Boot" is set to 'Enabled' in Arduino IDE
