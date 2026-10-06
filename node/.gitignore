@@ -5,5 +5,9 @@ main/secrets.h
 # ESP-IDF
 build
 sdkconfig.old
+sdkconfig.platformio
+sdkconfig.esp32-c6
 managed_components/
-dependencies.lock
+
+# PlatformIO
+.pio/

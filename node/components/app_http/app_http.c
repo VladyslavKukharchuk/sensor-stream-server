@@ -1,6 +1,5 @@
 #include "app_http.h"
 #include "esp_http_client.h"
-#include "esp_crt_bundle.h"
 #include "esp_log.h"
 #include "esp_mac.h"
 #include "cJSON.h"
@@ -43,8 +42,6 @@ bool register_device(const char* server_url, char* out_device_id, size_t size) {
     esp_http_client_config_t config = {
         .url = url,
         .method = HTTP_METHOD_POST,
-        .crt_bundle_attach = esp_crt_bundle_attach,
-        .skip_cert_common_name_check = true,
         .event_handler = _http_event_handler,
         .user_data = &response_data,
     };
@@ -93,8 +90,6 @@ void send_measurement(const char* server_url, const char* device_id, float temp,
     esp_http_client_config_t config = {
         .url = url,
         .method = HTTP_METHOD_POST,
-        .crt_bundle_attach = esp_crt_bundle_attach,
-        .skip_cert_common_name_check = true,
     };
     esp_http_client_handle_t client = esp_http_client_init(&config);
     esp_http_client_set_header(client, "Content-Type", "application/json");
