@@ -19,6 +19,10 @@ This project demonstrates reading temperature and humidity from a **DHT22 (AM230
 - 3.3V --> VCC DHT22
 - GND --> GND DHT22
 - GPIO4 --> DATA DHT22 (through 4.7-10kΩ resistor to 3.3V)
+- 3.3V --> VCC OLED
+- GND --> GND OLED
+- GPIO21 --> SCL OLED
+- GPIO22 --> SDA OLED
 
 ## ⚡ Features
 
@@ -43,6 +47,10 @@ automatically; no separate ESP-IDF installation or Arduino libraries are needed.
 The project uses `sdkconfig.defaults` and `partitions.csv` for its 8 MB flash
 configuration and a 2 MB application partition. Before flashing, configure
 `main/secrets.h` from `main/secrets.template.h`.
+
+The 128x64 SSD1306 OLED is connected over I2C at address `0x3C`. The firmware
+shows the latest temperature and humidity; sensor read failures appear as
+`DHT ERROR`. If the display does not respond, check its I2C address and wiring.
 
 For this personal project, TLS server-certificate verification is disabled so
 the node can connect even if its CA bundle or clock is not set up. HTTPS traffic

@@ -9,10 +9,12 @@
 #include "app_storage.h"
 #include "app_http.h"
 #include "app_time.h"
+#include "app_display.h"
 #include "dht.h"
 #include "secrets.h"
 
 static const char *TAG = "MAIN";
+static bool display_ready;
 
 #define DHT_GPIO 4
 #define DHT_TYPE DHT_TYPE_AM2301
@@ -25,9 +27,21 @@ void sensor_task(void *pvParameters) {
     while(1) {
         if (dht_read_float_data(DHT_TYPE, DHT_GPIO, &hum, &temp) == ESP_OK) {
             ESP_LOGI(TAG, "Reading: T=%.1f°C, H=%.1f%%", temp, hum);
+            if (display_ready) {
+                esp_err_t display_err = app_display_show_reading(temp, hum);
+                if (display_err != ESP_OK) {
+                    ESP_LOGE(TAG, "Failed to update OLED: %s", esp_err_to_name(display_err));
+                }
+            }
             send_measurement(SERVER_URL, device_id, temp, hum);
         } else {
             ESP_LOGE(TAG, "Failed to read from DHT sensor");
+            if (display_ready) {
+                esp_err_t display_err = app_display_show_sensor_error();
+                if (display_err != ESP_OK) {
+                    ESP_LOGE(TAG, "Failed to update OLED: %s", esp_err_to_name(display_err));
+                }
+            }
         }
         vTaskDelay(pdMS_TO_TICKS(SEND_INTERVAL_SEC * 1000));
     }
@@ -40,6 +54,13 @@ void app_main(void) {
         ret = nvs_flash_init();
     }
     ESP_ERROR_CHECK(ret);
+
+    esp_err_t display_err = app_display_init();
+    if (display_err == ESP_OK) {
+        display_ready = true;
+    } else {
+        ESP_LOGE(TAG, "OLED initialization failed: %s", esp_err_to_name(display_err));
+    }
 
     wifi_init_sta(WIFI_SSID, WIFI_PASSWORD);
     
