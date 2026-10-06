@@ -37,6 +37,46 @@ This project demonstrates reading temperature and humidity from a **DHT22 (AM230
     ```
 - Easy to extend for multiple ESP32 sensors.
 
+## 🔮 Future features
+
+### Battery monitoring with the current ESP32-C6-Zero and TP4056
+
+The TP4056 does not report which source is powering the ESP32 and does not
+provide a battery percentage. With the current modules and two resistor
+dividers, firmware could:
+
+- Detect whether USB voltage is present at the TP4056 input. This reports USB
+  presence at the charger, **not** which source actually powers the ESP32.
+- Estimate battery voltage and show a rough charge level. This is an estimate,
+  not a fuel-gauge reading; voltage varies with load and while charging.
+
+Possible measurement wiring, subject to confirming the exact board pinout:
+
+```text
+Battery voltage: TP4056 B+ -- 100 kOhm --+-- ESP32-C6-Zero GPIO5 (ADC)
+                                          +-- 100 kOhm -- common GND / B-
+
+USB presence:    TP4056 IN+ -- 100 kOhm --+-- ESP32-C6-Zero GPIO3 (ADC)
+                                          +-- 100 kOhm -- common GND / IN-
+```
+
+The resistor midpoint halves the input voltage: up to 4.2 V from a single-cell
+Li-ion battery becomes about 2.1 V at the ADC; 5 V USB becomes about 2.5 V.
+Connect TP4056 and ESP32 grounds together. Never connect battery or USB voltage
+directly to an ESP32 GPIO. Configure and calibrate the ESP-IDF ADC, convert the
+measured divider voltage back to the source voltage in firmware, and validate
+the readings with a multimeter before relying on them. Confirm GPIO3 and GPIO5
+are exposed and available on the exact board revision before wiring.
+
+This arrangement can report **USB present** and approximate **battery voltage**,
+but cannot reliably determine whether USB or the battery is actually supplying
+the ESP32. The TP4056 is a charger, not a power-path/UPS controller. Its `OUT`
+voltage follows the battery (roughly 3.0–4.2 V), so do not connect `OUT+`
+directly to the ESP32 `5V` pin. A safe battery-powered setup needs a suitable
+regulated supply; seamless source detection/switching needs a power-path/UPS
+module with a status output. TP4056 charge-status LEDs indicate charging state,
+not the ESP32's power source.
+
 ### 🔧 Setup
 
 Install the PlatformIO IDE extension in VS Code and open the `node` directory.
