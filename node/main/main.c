@@ -16,7 +16,7 @@
 static const char *TAG = "MAIN";
 static bool display_ready;
 
-#define DHT_GPIO 4
+#define DHT_GPIO 0
 #define DHT_TYPE DHT_TYPE_AM2301
 
 static char device_id[64] = {0};
