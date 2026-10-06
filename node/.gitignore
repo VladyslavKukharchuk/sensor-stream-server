@@ -1,6 +1,7 @@
 .idea
 secrets.h
 main/secrets.h
+.vscode
 
 # ESP-IDF
 build
